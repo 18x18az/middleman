@@ -1,0 +1,20 @@
+{
+  "name": "middleman",
+  "version": "1.0.0",
+  "description": "訳者",
+  "main": "src/index.ts",
+  "repository": "https://github.com/18x18az/middleman.git",
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^16.11.11",
+    "typescript": "^4.5.2"
+  },
+  "devDependencies": {
+    "ts-node": "^10.4.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./bin/index.js",
+    "dev": "ts-node ./src/index.ts"
+  }
+}
