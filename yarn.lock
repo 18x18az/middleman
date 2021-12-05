@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@18x18az/rosetta@^1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@18x18az/rosetta/-/rosetta-1.0.6.tgz#6b6f38d68ec75b7bc7a7b586bfc7bcd7fbee8fa6"
-  integrity sha512-EslHVFekFZYTwCSfm2Vj4mnR4SisuUn/z086zXzRI38WRwlBCj2bChkUJ3PJbGAbNUJKHAYCwqUM0WZ7Ii1oFg==
+"@18x18az/rosetta@^1.0.7":
+  version "1.0.7"
+  resolved "https://registry.yarnpkg.com/@18x18az/rosetta/-/rosetta-1.0.7.tgz#4919a62e7d6f51ea896f0352f1ad318c51f3e118"
+  integrity sha512-fdwWsGOdnpDSspgmiJhD5Rx1IpLCh1NPSJfbttM+AehbAyKdy+SdibqQu6IFeBkuwZy++uzY1MxQ/WzxrfTrcQ==
 
 "@cspotcode/source-map-consumer@0.8.0":
   version "0.8.0"
@@ -57,6 +57,11 @@
   version "16.11.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
   integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
+
+"@types/object-hash@^2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@types/object-hash/-/object-hash-2.2.1.tgz#67c169f8f033e0b62abbf81df2d00f4598d540b9"
+  integrity sha512-i/rtaJFCsPljrZvP/akBqEwUP2y5cZLOmvO+JaYnz01aPknrQ+hB5MRcO7iqCUsFaYfTG8kGfKUyboA07xeDHQ==
 
 "@types/parse5@*":
   version "6.0.3"
@@ -339,6 +344,11 @@ nwsapi@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/nwsapi/-/nwsapi-2.2.0.tgz#204879a9e3d068ff2a55139c2c772780681a38b7"
   integrity sha512-h2AatdwYH+JHiZpv7pt/gSX1XoRGb7L/qSIeuqA6GwYoF9w1vP1cw42TO0aI2pNyshRK5893hNSl+1//vHK7hQ==
+
+object-hash@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/object-hash/-/object-hash-2.2.0.tgz#5ad518581eefc443bd763472b8ff2e9c2c0d54a5"
+  integrity sha512-gScRMn0bS5fH+IuwyIFgnh9zBdo4DV+6GhygmWM9HyNJSgS0hScp1f5vjtm7oIIOiT9trXrShAkLFSc2IqKNgw==
 
 optionator@^0.8.1:
   version "0.8.3"
