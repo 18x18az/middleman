@@ -27,7 +27,14 @@ function makeAllianceResults(team1: string, team2: string, score: string): Simpl
 }
 
 export async function getMatches(hostname: string, division: string): Promise<SimpleMatchResult | null> {
-    const raw = await getTable(`http:${hostname}/${division}/matches`);
+    const raw = await getTable(`http:${hostname}/${division}/matches`)
+        .catch(err => {
+            if(err.includes("ECONNREFUSED")){
+                return []
+            } else {
+                throw err;
+            }
+        });
 
     let updated = null;
     raw.forEach((row: any) => {

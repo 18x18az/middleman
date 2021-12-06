@@ -17,7 +17,7 @@ export function getTable(url: string): Promise<Array<any>> {
             });
 
         }).on("error", (err) => {
-            reject(err);
+            reject(err.message);
         });
     });
 }
