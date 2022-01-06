@@ -6,6 +6,7 @@
   "repository": "https://github.com/18x18az/middleman.git",
   "license": "MIT",
   "dependencies": {
+    "@18x18az/ouija": "^1.0.0",
     "@18x18az/rosetta": "^1.0.7",
     "@types/jsdom": "^16.2.13",
     "@types/node": "^16.11.11",
@@ -13,6 +14,7 @@
     "@types/ws": "^8.2.1",
     "axios": "^0.24.0",
     "axios-cookiejar-support": "^2.0.3",
+    "dotenv": "^10.0.0",
     "jsdom": "^19.0.0",
     "object-hash": "^2.2.0",
     "tough-cookie": "^4.0.0",
