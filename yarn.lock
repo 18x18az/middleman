@@ -2,21 +2,22 @@
 # yarn lockfile v1
 
 
-"@18x18az/ouija@^1.0.0":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@18x18az/ouija/-/ouija-1.0.2.tgz#8f796e35e89a4e3704a910962baedb1c2a022693"
-  integrity sha512-DpjozMBFgLkOnSoDZRsnWQExp1jXTEgwpME+pVgc6PEWNFMLwJE6hh6Ax2inVjhCGBgfvEAopDNmoD8rq8ZX8w==
+"@18x18az/ouija@^1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@18x18az/ouija/-/ouija-1.0.4.tgz#84686b75f995e81ac1bfe89d65e0da34d2129600"
+  integrity sha512-/kWc9M9ZltuHmyN8D+oZ3MFXOLNe+gjPp5cFDt/0WneXghV99PVKmcPHJdnqTC3eW6b3Jr8w2Zd7p2qiHm5lbg==
   dependencies:
     "@types/node" "^16.11.12"
+    "@types/ws" "^8.2.2"
     isomorphic-ws "^4.0.1"
     reconnecting-websocket "^4.4.0"
     typescript "^4.5.2"
     ws "^8.3.0"
 
-"@18x18az/rosetta@^1.0.7":
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/@18x18az/rosetta/-/rosetta-1.0.7.tgz#4919a62e7d6f51ea896f0352f1ad318c51f3e118"
-  integrity sha512-fdwWsGOdnpDSspgmiJhD5Rx1IpLCh1NPSJfbttM+AehbAyKdy+SdibqQu6IFeBkuwZy++uzY1MxQ/WzxrfTrcQ==
+"@18x18az/rosetta@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@18x18az/rosetta/-/rosetta-1.1.1.tgz#0827e6fb9293f13afc286d9ba28d5e7aedd5d12a"
+  integrity sha512-eLopJDlFrHzjusGXZLTFHW11ivlzGfGVPwx3TV8i76AgooBqAAbrfj4AP5L7t7O3139aAHnxV7Aywqs3i26wVQ==
 
 "@cspotcode/source-map-consumer@0.8.0":
   version "0.8.0"
@@ -64,7 +65,12 @@
     "@types/parse5" "*"
     "@types/tough-cookie" "*"
 
-"@types/node@*", "@types/node@^16.11.11":
+"@types/node@*":
+  version "17.0.8"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.8.tgz#50d680c8a8a78fe30abe6906453b21ad8ab0ad7b"
+  integrity sha512-YofkM6fGv4gDJq78g4j0mMuGMkZVxZDgtU0JRdx6FgiJDG+0fY0GKVolOV8WqVmEhLCXkQRjwDdKyPxJp/uucg==
+
+"@types/node@^16.11.11":
   version "16.11.11"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.11.tgz#6ea7342dfb379ea1210835bada87b3c512120234"
   integrity sha512-KB0sixD67CeecHC33MYn+eYARkqTheIRNuu97y2XMjR7Wu3XibO1vaY6VBV6O/a89SPI81cEUIYT87UqUWlZNw==
@@ -93,6 +99,13 @@
   version "8.2.1"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.2.1.tgz#7bdf6b12869726c9f3cc3c48485efea5d4505274"
   integrity sha512-SqQ+LhVZaJi7c7sYVkjWALDigi/Wy7h7Iu72gkQp8Y8OWw/DddEVBrTSKu86pQftV2+Gm8lYM61hadPKqyaIeg==
+  dependencies:
+    "@types/node" "*"
+
+"@types/ws@^8.2.2":
+  version "8.2.2"
+  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.2.2.tgz#7c5be4decb19500ae6b3d563043cd407bf366c21"
+  integrity sha512-NOn5eIcgWLOo6qW8AcuLZ7G8PycXu0xTxxkS6Q18VWFxgPUSOwV0pBj2a/4viNZVu25i7RIB7GttdkAIUUXOOg==
   dependencies:
     "@types/node" "*"
 

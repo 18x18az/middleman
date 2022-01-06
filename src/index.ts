@@ -1,6 +1,6 @@
 import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
-import { getMatches as checkForScores } from "./matches";
+import { getMatches } from "./matches";
 import { getRankings } from "./rankings";
 import { doSocketStuff } from "./fields";
 import {config} from "dotenv"
@@ -12,10 +12,15 @@ const division = process.env.DIVISION as string;
 const fieldset = process.env.FIELDSET as string;
 const password = process.env.TM_PASSWORD as string;
 
+const talos_url = process.env.TALOS_URL as string;
+
+const talos = new Websocket(talos_url);
+
 async function scoreUpdater() {
-    const newScore = await checkForScores(hostname, division);
+    const newScore = await getMatches(hostname, division);
     if(newScore){
-        console.log(newScore);
+        console.log(JSON.stringify(newScore));
+        talos.post(['score'], JSON.stringify(newScore));
     }
 
     return
