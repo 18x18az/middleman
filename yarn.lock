@@ -3,9 +3,9 @@
 
 
 "@18x18az/ouija@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@18x18az/ouija/-/ouija-1.0.4.tgz#84686b75f995e81ac1bfe89d65e0da34d2129600"
-  integrity sha512-/kWc9M9ZltuHmyN8D+oZ3MFXOLNe+gjPp5cFDt/0WneXghV99PVKmcPHJdnqTC3eW6b3Jr8w2Zd7p2qiHm5lbg==
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@18x18az/ouija/-/ouija-1.0.5.tgz#df9da8490b2abe8f608bfa58b39e7e3ab74dab3b"
+  integrity sha512-Wis7K3LwjQJidR8rjrJ9tLl4+7bL7HEnMylujpjLUbS60ZJzYz4VwlxKCXdECwPGTR3gCDa/xW1+FVaQ6dqPfw==
   dependencies:
     "@types/node" "^16.11.12"
     "@types/ws" "^8.2.2"

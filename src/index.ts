@@ -4,6 +4,7 @@ import { getMatches } from "./matches";
 import { getRankings } from "./rankings";
 import { doSocketStuff } from "./fields";
 import {config} from "dotenv"
+import { MESSAGE_TYPE } from "@18x18az/rosetta";
 
 config()
 
@@ -26,8 +27,19 @@ async function scoreUpdater() {
     return
 }
 
-async function doTheThing() {
+async function main() {
     const teams = await getTeams(hostname, division);
+
+    talos.connectCb = function () {
+        console.log("Sending teams");
+        return {
+            type: MESSAGE_TYPE.POST,
+            path: ['teams'],
+            payload: teams
+        }
+    }
+
+    talos.post(["teams"], teams);
 
     console.log(await getRankings(hostname, division));
     doSocketStuff(hostname, fieldset, password);
@@ -35,4 +47,4 @@ async function doTheThing() {
     setInterval(scoreUpdater, 500);
 }
 
-doTheThing();
+main();
