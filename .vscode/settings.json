@@ -2,5 +2,25 @@
     "cSpell.words": [
         "cookiejar",
         "fieldsets"
-    ]
+    ],
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#eb2934",
+        "activityBar.activeBorder": "#0d5708",
+        "activityBar.background": "#eb2934",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#0d5708",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "sash.hoverBorder": "#eb2934",
+        "statusBar.background": "#ce131e",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#eb2934",
+        "statusBarItem.remoteBackground": "#ce131e",
+        "statusBarItem.remoteForeground": "#e7e7e7",
+        "titleBar.activeBackground": "#ce131e",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.inactiveBackground": "#ce131e99",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    },
+    "peacock.color": "#CE131E"
 }

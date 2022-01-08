@@ -21,7 +21,7 @@ async function scoreUpdater() {
     const newScore = await getMatches(hostname, division);
     if(newScore){
         console.log(JSON.stringify(newScore));
-        talos.post(['score'], JSON.stringify(newScore));
+        talos.post(['score'], newScore);
     }
 
     return
