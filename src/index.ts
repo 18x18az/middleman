@@ -15,7 +15,7 @@ const password = process.env.TM_PASSWORD as string;
 
 const talos_url = process.env.TALOS_URL as string;
 
-const talos = new Websocket(talos_url);
+export const talos = new Websocket(talos_url);
 
 async function scoreUpdater() {
     const newScore = await getMatches(hostname, division);
