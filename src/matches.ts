@@ -68,6 +68,10 @@ export async function getNewScores(hostname: string, division: string): Promise<
     return (updated);
 }
 
+export function getStaleMatches(): IMatchList{
+    return matchList;
+}
+
 export async function getNewMatches(hostname: string, division: string): Promise<IMatchList | null> {
     const raw = await getTable(`http:${hostname}/${division}/matches`)
         .catch(err => {

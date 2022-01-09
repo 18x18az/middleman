@@ -1,9 +1,9 @@
 import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
-import { getNewMatches, getNewScores } from "./matches";
+import { getNewMatches, getNewScores, getStaleMatches } from "./matches";
 import { getRankings } from "./rankings";
 import { doSocketStuff } from "./fields";
-import {config} from "dotenv"
+import { config } from "dotenv"
 import { MESSAGE_TYPE } from "@18x18az/rosetta";
 
 config()
@@ -19,13 +19,13 @@ export const talos = new Websocket(talos_url);
 
 async function pollUpdater() {
     const newScore = await getNewScores(hostname, division);
-    if(newScore){
+    if (newScore) {
         console.log(JSON.stringify(newScore));
         talos.post(['score'], newScore);
     }
 
     const matchList = await getNewMatches(hostname, division);
-    if(matchList){
+    if (matchList) {
         console.log("matches updated");
         talos.post(['matches'], matchList);
     }
@@ -38,11 +38,19 @@ async function main() {
 
     talos.connectCb = function () {
         console.log("Sending teams");
-        return {
-            type: MESSAGE_TYPE.POST,
-            path: ['teams'],
-            payload: teams
-        }
+        const matches = getStaleMatches();
+        return [
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['teams'],
+                payload: teams
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['matches'],
+                payload: matches
+            }
+        ]
     }
 
     talos.post(["teams"], teams);
