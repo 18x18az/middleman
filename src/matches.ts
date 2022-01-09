@@ -68,7 +68,7 @@ export async function getNewScores(hostname: string, division: string): Promise<
     return (updated);
 }
 
-export function getStaleMatches(): IMatchList{
+export function getStaleMatches(): IMatchList {
     return matchList;
 }
 
@@ -87,8 +87,14 @@ export async function getNewMatches(hostname: string, division: string): Promise
         raw.forEach((row: any) => {
             const columns = Array.from(row.cells).map((cell: any) => (cell.textContent));
             const matchName = columns[0];
-            const red: IAllianceTeams = { team1: columns[1], team2: columns[2] };
-            const blue: IAllianceTeams = { team1: columns[3], team2: columns[4] };
+            const red: IAllianceTeams = {
+                team1:  getTeamIdFromNumber(columns[1]),
+                team2:  getTeamIdFromNumber(columns[2])
+            };
+            const blue: IAllianceTeams = {
+                team1:  getTeamIdFromNumber(columns[3]),
+                team2:  getTeamIdFromNumber(columns[4])
+            };
 
             let matchNumber, matchType;
             if (/\s/g.test(matchName)) {
@@ -112,15 +118,15 @@ export async function getNewMatches(hostname: string, division: string): Promise
 
             if (matchType === "Q") {
                 type = MatchType.QUAL;
-              } else if (matchType === 'R16') {
+            } else if (matchType === 'R16') {
                 type = MatchType.R16;
-              } else if (matchType === "QF"){
+            } else if (matchType === "QF") {
                 type = MatchType.QF;
-              } else if (matchType === "SF"){
+            } else if (matchType === "SF") {
                 type = MatchType.SF;
-              } else if(matchType === "F"){
+            } else if (matchType === "F") {
                 type = MatchType.F;
-              }
+            }
 
             const match: IMatchInfo = {
                 matchId: matchName,
@@ -130,7 +136,7 @@ export async function getNewMatches(hostname: string, division: string): Promise
                 blue
             }
 
-            if(subNumber){
+            if (subNumber) {
                 match.subNumber = subNumber;
             }
 
