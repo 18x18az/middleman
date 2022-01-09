@@ -1,6 +1,6 @@
 import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
-import { getMatches } from "./matches";
+import { getNewMatches, getNewScores } from "./matches";
 import { getRankings } from "./rankings";
 import { doSocketStuff } from "./fields";
 import {config} from "dotenv"
@@ -17,11 +17,17 @@ const talos_url = process.env.TALOS_URL as string;
 
 export const talos = new Websocket(talos_url);
 
-async function scoreUpdater() {
-    const newScore = await getMatches(hostname, division);
+async function pollUpdater() {
+    const newScore = await getNewScores(hostname, division);
     if(newScore){
         console.log(JSON.stringify(newScore));
         talos.post(['score'], newScore);
+    }
+
+    const matchList = await getNewMatches(hostname, division);
+    if(matchList){
+        console.log("matches updated");
+        talos.post(['matches'], matchList);
     }
 
     return
@@ -44,7 +50,7 @@ async function main() {
     console.log(await getRankings(hostname, division));
     doSocketStuff(hostname, fieldset, password);
 
-    setInterval(scoreUpdater, 500);
+    setInterval(pollUpdater, 500);
 }
 
 main();

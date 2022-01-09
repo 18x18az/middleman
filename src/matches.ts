@@ -2,13 +2,16 @@ import { sha1 } from "object-hash";
 
 import { getTable } from "./request";
 import { getTeamIdFromNumber } from "./teams";
-import { SimpleMatchResult, SimpleAllianceResults } from "@18x18az/rosetta"
+import { SimpleMatchResult, SimpleAllianceResults, IMatchList, IAllianceTeams, IMatchInfo, MatchType } from "@18x18az/rosetta"
 
 interface HashedResult extends SimpleMatchResult {
     hash?: string
 }
 
 const results: MatchResults = {};
+
+let lastLength = 0;
+const matchList: IMatchList = {};
 
 interface MatchResults {
     [key: string]: HashedResult
@@ -26,10 +29,10 @@ function makeAllianceResults(team1: string, team2: string, score: string): Simpl
     }
 }
 
-export async function getMatches(hostname: string, division: string): Promise<SimpleMatchResult | null> {
+export async function getNewScores(hostname: string, division: string): Promise<SimpleMatchResult | null> {
     const raw = await getTable(`http:${hostname}/${division}/matches`)
         .catch(err => {
-            if(err.includes("ECONNREFUSED")){
+            if (err.includes("ECONNREFUSED")) {
                 return []
             } else {
                 throw err;
@@ -63,4 +66,75 @@ export async function getMatches(hostname: string, division: string): Promise<Si
     });
 
     return (updated);
+}
+
+export async function getNewMatches(hostname: string, division: string): Promise<IMatchList | null> {
+    const raw = await getTable(`http:${hostname}/${division}/matches`)
+        .catch(err => {
+            if (err.includes("ECONNREFUSED")) {
+                return []
+            } else {
+                throw err;
+            }
+        });
+
+    if (raw.length !== lastLength) {
+        lastLength = raw.length;
+        raw.forEach((row: any) => {
+            const columns = Array.from(row.cells).map((cell: any) => (cell.textContent));
+            const matchName = columns[0];
+            const red: IAllianceTeams = { team1: columns[1], team2: columns[2] };
+            const blue: IAllianceTeams = { team1: columns[3], team2: columns[4] };
+
+            let matchNumber, matchType;
+            if (/\s/g.test(matchName)) {
+                const contents = matchName.split(" ");
+                matchType = contents[0];
+                matchNumber = contents[1];
+            } else {
+                matchNumber = matchName.match(/[\d\-]+/g);
+                matchType = String(matchName.match(/[a-zA-Z]+/g));
+            }
+
+            let subNumber = null;
+
+            if (/-/g.test(matchNumber)) {
+                const contents = matchNumber.split("-");
+                matchNumber = contents[0];
+                subNumber = contents[1];
+            }
+
+            let type = MatchType.QUAL;
+
+            if (matchType === "Q") {
+                type = MatchType.QUAL;
+              } else if (matchType === 'R16') {
+                type = MatchType.R16;
+              } else if (matchType === "QF"){
+                type = MatchType.QF;
+              } else if (matchType === "SF"){
+                type = MatchType.SF;
+              } else if(matchType === "F"){
+                type = MatchType.F;
+              }
+
+            const match: IMatchInfo = {
+                matchId: matchName,
+                type,
+                number: matchNumber,
+                red,
+                blue
+            }
+
+            if(subNumber){
+                match.subNumber = subNumber;
+            }
+
+            matchList[matchName] = match;
+        });
+
+        return matchList;
+    } else {
+        return null;
+    }
 }
