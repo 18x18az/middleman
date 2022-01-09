@@ -12,6 +12,10 @@ let currentFieldState: IFieldState = {
     match: "None"
 }
 
+export function getStaleFieldState(): IFieldState {
+    return currentFieldState;
+}
+
 async function getSession(hostname: string, password: string) {
     const jar = new CookieJar();
     const client = wrapper(axios.create({ jar }));

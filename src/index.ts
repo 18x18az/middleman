@@ -2,7 +2,7 @@ import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { getNewMatches, getNewScores, getStaleMatches } from "./matches";
 import { getRankings } from "./rankings";
-import { doSocketStuff } from "./fields";
+import { doSocketStuff, getStaleFieldState } from "./fields";
 import { config } from "dotenv"
 import { MESSAGE_TYPE } from "@18x18az/rosetta";
 
@@ -39,6 +39,7 @@ async function main() {
     talos.connectCb = function () {
         console.log("Sending teams");
         const matches = getStaleMatches();
+        const fieldState = getStaleFieldState();
         return [
             {
                 type: MESSAGE_TYPE.POST,
@@ -49,6 +50,11 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['matches'],
                 payload: matches
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['field'],
+                payload: fieldState
             }
         ]
     }
