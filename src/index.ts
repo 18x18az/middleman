@@ -62,7 +62,8 @@ async function main() {
     talos.getCb = function (path: IPath) {
         const route = path[0];
 
-        if(route === "rankings"){
+        if (route === "rankings") {
+            console.log("Rankings requested to start alliance selection");
             getRankings(hostname, division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
@@ -73,7 +74,6 @@ async function main() {
 
     talos.post(["teams"], teams);
 
-    console.log(await getRankings(hostname, division));
     doSocketStuff(hostname, fieldset, password);
 
     setInterval(pollUpdater, 500);
