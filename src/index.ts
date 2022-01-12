@@ -4,7 +4,7 @@ import { getNewMatches, getNewScores, getStaleMatches } from "./matches";
 import { getRankings } from "./rankings";
 import { doSocketStuff, getStaleFieldState } from "./fields";
 import { config } from "dotenv"
-import { MESSAGE_TYPE } from "@18x18az/rosetta";
+import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 
 config()
 
@@ -57,6 +57,18 @@ async function main() {
                 payload: fieldState
             }
         ]
+    }
+
+    talos.getCb = function (path: IPath) {
+        const route = path[0];
+
+        if(route === "rankings"){
+            getRankings(hostname, division).then((rankings) => {
+                talos.post(["allianceSelection"], rankings);
+            });
+        }
+
+        return null;
     }
 
     talos.post(["teams"], teams);
