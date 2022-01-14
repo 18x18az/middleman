@@ -5,6 +5,7 @@ import { getRankings } from "./rankings";
 import { doSocketStuff, getStaleFieldState } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
+import { getAwards } from "./awards";
 
 config()
 
@@ -35,7 +36,9 @@ async function pollUpdater() {
 
 async function main() {
     const teams = await getTeams(hostname, division);
-
+    //const brr = await getAwards(hostname, division); // test
+    //console.log(brr);
+    
     talos.connectCb = function () {
         console.log("Sending teams");
         const matches = getStaleMatches();
