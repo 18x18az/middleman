@@ -52,6 +52,8 @@ export async function doSocketStuff(hostname: string, fieldset: string, password
                 currentFieldState.control = FieldControl.AUTONOMOUS
             } else if (period === "Driver Control") {
                 currentFieldState.control = FieldControl.DRIVER
+            } else if (info.state === "TIMEOUT") {
+                currentFieldState.control = FieldControl.TIMEOUT
             } else if (period === "") {
                 currentFieldState.control = FieldControl.DISABLED
             }

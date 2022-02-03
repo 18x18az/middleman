@@ -7,7 +7,7 @@
   "license": "MIT",
   "dependencies": {
     "@18x18az/ouija": "^1.0.4",
-    "@18x18az/rosetta": "^1.1.1",
+    "@18x18az/rosetta": "^1.1.7",
     "@types/jsdom": "^16.2.13",
     "@types/node": "^16.11.11",
     "@types/object-hash": "^2.2.1",

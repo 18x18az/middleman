@@ -14,10 +14,10 @@
     typescript "^4.5.2"
     ws "^8.3.0"
 
-"@18x18az/rosetta@^1.1.1":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@18x18az/rosetta/-/rosetta-1.1.5.tgz#ae2662f31c94016ce53e93b8de93f5f84821f49d"
-  integrity sha512-dU0UmbbizUVcQNSn2I/EBrIPavzyEGL3yrFa68ET0sS1ENj6vYd9eqgohT6HQ9j3cLMxrHtq4CxyBNKYCngFQg==
+"@18x18az/rosetta@^1.1.7":
+  version "1.1.7"
+  resolved "https://registry.yarnpkg.com/@18x18az/rosetta/-/rosetta-1.1.7.tgz#d8f98c8fac18b1c71c1b958f59be027c580fe6b7"
+  integrity sha512-qdzH4Vp+UI6JYBiEiTq1yo+BVKogW0yiZaOCibw8Y86JJoLi7eeViOake6TUZmqvVkYjjYBnkEjuOY0S4xBq1Q==
 
 "@cspotcode/source-map-consumer@0.8.0":
   version "0.8.0"
