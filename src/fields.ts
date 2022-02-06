@@ -9,6 +9,8 @@ let currentFieldState: IFieldState = {
     match: "None"
 }
 
+let currentFieldInfo: Array<IFieldInfo>;
+
 export async function getFieldInfo(fieldset: string): Promise<Array<IFieldInfo>> {
     const {fields} = await tm.getData(`fieldsets/${fieldset}/fields`)
     const fieldsInfo = fields.map((field: any) => {
@@ -17,11 +19,17 @@ export async function getFieldInfo(fieldset: string): Promise<Array<IFieldInfo>>
         return fieldInfo;
     });
 
+    currentFieldInfo = fieldsInfo;
+
     return fieldsInfo;
 }
 
 export function getStaleFieldState(): IFieldState {
     return currentFieldState;
+}
+
+export function getStaleFieldInfo(): Array<IFieldInfo>{
+    return currentFieldInfo;
 }
 
 export async function doSocketStuff(fieldset: string) {

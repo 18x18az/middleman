@@ -2,7 +2,7 @@ import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { getNewMatches, getNewScores, getStaleMatches } from "./matches";
 import { getRankings } from "./rankings";
-import { doSocketStuff, getFieldInfo, getStaleFieldState } from "./fields";
+import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
@@ -41,6 +41,7 @@ async function main() {
         console.log("Sending teams");
         const matches = getStaleMatches();
         const fieldState = getStaleFieldState();
+        const fieldInfo = getStaleFieldInfo();
         return [
             {
                 type: MESSAGE_TYPE.POST,
