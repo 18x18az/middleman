@@ -1,4 +1,4 @@
-import { FieldControl, IFieldState } from "@18x18az/rosetta"
+import { FieldControl, IFieldState, IFieldInfo } from "@18x18az/rosetta"
 import { talos } from "./index"
 import { tm } from "./request";
 
@@ -7,6 +7,17 @@ let currentFieldState: IFieldState = {
     control: FieldControl.DISABLED,
     timeRemaining: 0,
     match: "None"
+}
+
+export async function getFieldInfo(fieldset: string): Promise<Array<IFieldInfo>> {
+    const {fields} = await tm.getData(`fieldsets/${fieldset}/fields`)
+    const fieldsInfo = fields.map((field: any) => {
+        const {id, name} = field;
+        const fieldInfo: IFieldInfo = {field: id, name};
+        return fieldInfo;
+    });
+
+    return fieldsInfo;
 }
 
 export function getStaleFieldState(): IFieldState {

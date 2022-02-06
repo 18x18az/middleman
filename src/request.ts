@@ -56,17 +56,21 @@ class TournamentManager {
         return ws;
     }
 
-    async getRaw(path: string): Promise<jsdom.JSDOM> {
+    async getData(path: string): Promise<any> {
         await this._initialize();
-
         const url = `http://${hostname}/${path}`;
         const { data } = await this.client.get(url);
+        return data;
+    }
+
+    async getDom(path: string): Promise<jsdom.JSDOM> {
+        const data = await this.getData(path);
         const dom = new jsdom.JSDOM(data);
         return dom;
     }
 
     async getTable(path: string): Promise<Array<any>> {
-        const dom = await this.getRaw(path);
+        const dom = await this.getDom(path);
         const table = Array.from(dom.window.document.querySelector('tbody').rows);
         return table;
     }

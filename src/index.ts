@@ -2,7 +2,7 @@ import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { getNewMatches, getNewScores, getStaleMatches } from "./matches";
 import { getRankings } from "./rankings";
-import { doSocketStuff, getStaleFieldState } from "./fields";
+import { doSocketStuff, getFieldInfo, getStaleFieldState } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
@@ -33,6 +33,7 @@ async function pollUpdater() {
 
 async function main() {
     const teams = await getTeams(division);
+    const fieldInfo = await getFieldInfo(fieldset);
     //const brr = await getAwards(hostname, division); // test
     //console.log(brr);
     
@@ -55,6 +56,11 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['field'],
                 payload: fieldState
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['fields'],
+                payload: fieldInfo
             }
         ]
     }
