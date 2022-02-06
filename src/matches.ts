@@ -1,6 +1,6 @@
 import { sha1 } from "object-hash";
 
-import { getTable } from "./request";
+import { tm } from "./request";
 import { getTeamIdFromNumber } from "./teams";
 import { SimpleMatchResult, SimpleAllianceResults, IMatchList, IAllianceTeams, IMatchInfo, MatchType } from "@18x18az/rosetta"
 
@@ -29,8 +29,8 @@ function makeAllianceResults(team1: string, team2: string, score: string): Simpl
     }
 }
 
-export async function getNewScores(hostname: string, division: string): Promise<SimpleMatchResult | null> {
-    const raw = await getTable(`http:${hostname}/${division}/matches`)
+export async function getNewScores(division: string): Promise<SimpleMatchResult | null> {
+    const raw = await tm.getTable(`${division}/matches`)
         .catch(err => {
             if (err.includes("ECONNREFUSED")) {
                 return []
@@ -72,8 +72,8 @@ export function getStaleMatches(): IMatchList {
     return matchList;
 }
 
-export async function getNewMatches(hostname: string, division: string): Promise<IMatchList | null> {
-    const raw = await getTable(`http:${hostname}/${division}/matches`)
+export async function getNewMatches(division: string): Promise<IMatchList | null> {
+    const raw = await tm.getTable(`${division}/matches`)
         .catch(err => {
             if (err.includes("ECONNREFUSED")) {
                 return []

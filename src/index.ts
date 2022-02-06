@@ -9,23 +9,20 @@ import { getAwards } from "./awards";
 
 config()
 
-const hostname = process.env.TM_HOSTNAME as string;
 const division = process.env.DIVISION as string;
-const fieldset = process.env.FIELDSET as string;
-const password = process.env.TM_PASSWORD as string;
-
 const talos_url = process.env.TALOS_URL as string;
+const fieldset = process.env.FIELDSET as string;
 
 export const talos = new Websocket(talos_url);
 
 async function pollUpdater() {
-    const newScore = await getNewScores(hostname, division);
+    const newScore = await getNewScores(division);
     if (newScore) {
         console.log(JSON.stringify(newScore));
         talos.post(['score'], newScore);
     }
 
-    const matchList = await getNewMatches(hostname, division);
+    const matchList = await getNewMatches(division);
     if (matchList) {
         console.log("matches updated");
         talos.post(['matches'], matchList);
@@ -35,7 +32,7 @@ async function pollUpdater() {
 }
 
 async function main() {
-    const teams = await getTeams(hostname, division);
+    const teams = await getTeams(division);
     //const brr = await getAwards(hostname, division); // test
     //console.log(brr);
     
@@ -67,7 +64,7 @@ async function main() {
 
         if (route === "rankings") {
             console.log("Rankings requested to start alliance selection");
-            getRankings(hostname, division).then((rankings) => {
+            getRankings(division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
         }
@@ -77,7 +74,7 @@ async function main() {
 
     talos.post(["teams"], teams);
 
-    doSocketStuff(hostname, fieldset, password);
+    doSocketStuff(fieldset);
 
     setInterval(pollUpdater, 500);
 }

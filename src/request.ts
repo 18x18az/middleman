@@ -1,54 +1,79 @@
-import * as http from "http"
+import axios, { AxiosInstance } from "axios";
+import { wrapper } from "axios-cookiejar-support";
+import { config } from "dotenv";
 import * as jsdom from "jsdom";
+import { CookieJar } from "tough-cookie";
+import { WebSocket } from "ws";
 
-export function getTable(url: string): Promise<Array<any>> {
-    return new Promise((resolve, reject) => {
-        http.get(url, (resp) => {
-            let data = '';
+config();
+class TournamentManager {
+    private hostname: string;
+    private password: string;
+    private initializePromise: Promise<boolean> | null;
+    private jar: CookieJar;
+    private client: AxiosInstance;
 
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
+    constructor(hostname: string, password: string) {
+        this.hostname = hostname;
+        this.password = password;
+        this.initializePromise = null;
+        this.jar = new CookieJar();
+        this.client = wrapper(axios.create({ jar: this.jar }))
+    }
 
-            resp.on('end', () => {
-                const dom = new jsdom.JSDOM(data);
-                const contents = Array.from(dom.window.document.querySelector('tbody').rows);
-                resolve(contents)
-            });
+    async _doInitialize(): Promise<boolean> {
+        console.log("Authenticating with Tournament Manager");
+        await this.client.post(
+            `http://${this.hostname}/admin/login?user=admin&password=${this.password}`
+        );
+        console.log("Authenticated");
+        return true;
+    }
 
-        }).on("error", (err) => {
-            reject(err.message);
+    async _initialize() {
+        if (!this.initializePromise) {
+            this.initializePromise = this._doInitialize();
+        }
+
+        return this.initializePromise;
+    }
+
+    async _getCookies() {
+        await this._initialize();
+        return this.jar.toJSON().cookies[0]['value'];
+    }
+
+    async getFieldControlSocket(fieldset: string): Promise<WebSocket> {
+        const user = await this._getCookies();
+        const cookieString = `user=${user}; lastFieldSetId=1"`
+
+        const ws = new WebSocket(`ws://${this.hostname}/fieldsets/${fieldset}`, {
+            headers: {
+                Cookie: cookieString
+            }
         });
-    });
+
+        return ws;
+    }
+
+    async getRaw(path: string): Promise<jsdom.JSDOM> {
+        await this._initialize();
+
+        const url = `http://${hostname}/${path}`;
+        const { data } = await this.client.get(url);
+        const dom = new jsdom.JSDOM(data);
+        return dom;
+    }
+
+    async getTable(path: string): Promise<Array<any>> {
+        const dom = await this.getRaw(path);
+        const table = Array.from(dom.window.document.querySelector('tbody').rows);
+        return table;
+    }
+
 }
 
 const hostname = process.env.TM_HOSTNAME as string;
 const password = process.env.TM_PASSWORD as string;
 
-export function getAuthTable(path: string, division: string, url: string): Promise <Array<any>> {
-    const options = {
-       headers: {
-        auth: `admin:${password}`,
-
-       }
-
-    };
-    return new Promise((resolve, reject) => {
-        http.get(url, options, (resp) => {
-            let data = '';
-            
-            resp.on('data', (chunk) => {
-                data += chunk;
-            });
-
-            resp.on('end', () => {
-                const dom = new jsdom.JSDOM(data);
-                const contents = Array.from(dom.window.document.querySelector('tbody').rows);
-                resolve(contents)
-            });
-
-        }).on("error", (err) => {
-            reject(err.message);
-        });
-    });
-}
+export const tm = new TournamentManager(hostname, password);

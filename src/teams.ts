@@ -1,5 +1,6 @@
-import { getTable } from "./request";
+//import { getTable } from "./request";
 import { Teams, Team, TeamId } from "@18x18az/rosetta"
+import { tm } from "./request";
 
 const teamIdMap: {
     [key: string]: TeamId
@@ -9,11 +10,10 @@ export function getTeamIdFromNumber(number: string): TeamId {
     return teamIdMap[number];
 }
 
-export async function getTeams(hostname: string, division: string): Promise<Teams> {
-
+export async function getTeams(division: string): Promise<Teams> {
     let id = 0;
     let teams: Teams = {};
-    const raw = await getTable(`http:${hostname}/${division}/teams`);
+    const raw = await tm.getTable(`${division}/teams`);
     raw.forEach((row: any) => {
         const columns = Array.from(row.cells).map((cell: any) => (cell.textContent));
         const teamId = (id++).toString();
