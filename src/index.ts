@@ -74,6 +74,11 @@ async function main() {
             getRankings(division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
+        } else if(route === "awards") {
+            console.log("updated awards requested");
+            getAwards(division).then(awards => {
+                talos.post(["awards"], awards);
+            });
         }
 
         return null;

@@ -1,14 +1,24 @@
-import { getAuthTable, getTable } from "./request";
+import { tm } from "./request";
 import { getTeamIdFromNumber } from "./teams";
 
-export async function getAwards(hostname: string, division: string): Promise<Array<string>> {
-    //const raw = await getTable(`http:${hostname}/${division}/awards`);
-    const raw = await getAuthTable('/awards', division, `http:${hostname}/${division}/awards`);
-    console.log("boop")
+export async function getAwards(division: string) {
+    const raw = await tm.getTable(`${division}/awards`);
     const winningTeams = raw.map((row: any) => {
-        const columns = Array.from(row.cells).map((cell: any) => (cell.textContent));
-        const teamId = getTeamIdFromNumber(columns[1]);
-        return teamId;
+        const id = row.id;
+        const awardName = row.querySelector(`#${id}_name`).textContent;
+        console.log(awardName);
+        const awardWinnerSelector = row.querySelector(`#${id}_winnerEntryNumber`);
+        const selectedIndex = awardWinnerSelector.selectedIndex;
+        let winner = null;
+        if(selectedIndex){
+            const winnerNumber = awardWinnerSelector.options[selectedIndex].textContent;
+            winner = getTeamIdFromNumber(winnerNumber);
+        }
+
+        return {
+            award: awardName,
+            winner
+        }
     });
 
     return winningTeams;
