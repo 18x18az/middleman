@@ -6,6 +6,7 @@ import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo } fr
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
+import { getSkillsRankings } from "./skills";
 
 config()
 
@@ -29,6 +30,22 @@ async function pollUpdater() {
     }
 
     return
+}
+
+// send updates to scores.18x18az.org periodically
+async function viaUpdater() {
+    getSkillsRankings();
+    // if nothing has changed, don't send scores.18x18 an update!
+    // need to check:
+    // - schedule changes
+    // - match results -> implies rankings needs to be updated
+    // - existence of elim matches
+    // - skills rankings
+
+    // we also need to get general event information.
+    // is it possible to get event information from the TM webserver?
+    // - such as event name, location, etc.
+    // - perhaps scores.18x18az will need to poll robotevents maybe once a week?
 }
 
 async function main() {
@@ -89,6 +106,7 @@ async function main() {
     doSocketStuff(fieldset);
 
     setInterval(pollUpdater, 500);
+    setInterval(viaUpdater, 3000); // TODO: make this longer, like 90-120 seconds (90000-120000)
 }
 
 main();
