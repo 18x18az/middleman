@@ -6,6 +6,7 @@ import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo } fr
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
+import { getInspectionStatus } from "./inspection";
 
 config()
 
@@ -85,6 +86,8 @@ async function main() {
     }
 
     talos.post(["teams"], teams);
+
+    getInspectionStatus();
 
     doSocketStuff(fieldset);
 
