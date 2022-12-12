@@ -28,6 +28,12 @@ async function pollUpdater() {
         console.log("matches updated");
         talos.post(['matches'], matchList);
     }
+    
+    const inspection = await getInspectionStatus();
+    if (inspection) {
+        console.log("inspection updated");
+        talos.post(['inspection'], inspection);
+    }
 
     return
 }
@@ -85,7 +91,7 @@ async function main() {
 
     talos.post(["teams"], teams);
 
-    getInspectionStatus();
+    //getInspectionStatus();
 
     doSocketStuff(fieldset);
 
