@@ -1,1 +1,1 @@
-`yarn start` or `yarn dev`
+`yarn dev`

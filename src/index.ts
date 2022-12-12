@@ -35,8 +35,6 @@ async function pollUpdater() {
 async function main() {
     const teams = await getTeams(division);
     const fieldInfo = await getFieldInfo(fieldset);
-    //const brr = await getAwards(hostname, division); // test
-    //console.log(brr);
     
     talos.connectCb = function () {
         console.log("Sending teams");
