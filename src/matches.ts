@@ -2,9 +2,9 @@ import { sha1 } from "object-hash";
 
 import { tm } from "./request";
 import { getTeamIdFromNumber } from "./teams";
-import { SimpleMatchResult, SimpleAllianceResults, IMatchList, IAllianceTeams, IMatchInfo, MatchType } from "@18x18az/rosetta"
+import { ISimpleMatchResult, ISimpleAllianceResults, IMatchList, IAllianceTeams, IMatchInfo, MATCH_TYPE } from "@18x18az/rosetta"
 
-interface HashedResult extends SimpleMatchResult {
+interface HashedResult extends ISimpleMatchResult {
     hash?: string
 }
 
@@ -17,7 +17,7 @@ interface MatchResults {
     [key: string]: HashedResult
 }
 
-function makeAllianceResults(team1: string, team2: string, score: string): SimpleAllianceResults {
+function makeAllianceResults(team1: string, team2: string, score: string): ISimpleAllianceResults {
     const team1Id = getTeamIdFromNumber(team1);
     const team2Id = getTeamIdFromNumber(team2);
     const processedScore = parseInt(score.trim());
@@ -29,7 +29,7 @@ function makeAllianceResults(team1: string, team2: string, score: string): Simpl
     }
 }
 
-export async function getNewScores(division: string): Promise<SimpleMatchResult | null> {
+export async function getNewScores(division: string): Promise<ISimpleMatchResult | null> {
     const raw = await tm.getTable(`${division}/matches`)
         .catch(err => {
             if (err.includes("ECONNREFUSED")) {
@@ -114,18 +114,18 @@ export async function getNewMatches(division: string): Promise<IMatchList | null
                 subNumber = contents[1];
             }
 
-            let type = MatchType.QUAL;
+            let type = MATCH_TYPE.QUAL;
 
             if (matchType === "Q") {
-                type = MatchType.QUAL;
+                type = MATCH_TYPE.QUAL;
             } else if (matchType === 'R16') {
-                type = MatchType.R16;
+                type = MATCH_TYPE.R16;
             } else if (matchType === "QF") {
-                type = MatchType.QF;
+                type = MATCH_TYPE.QF;
             } else if (matchType === "SF") {
-                type = MatchType.SF;
+                type = MATCH_TYPE.SF;
             } else if (matchType === "F") {
-                type = MatchType.F;
+                type = MATCH_TYPE.F;
             }
 
             const match: IMatchInfo = {
