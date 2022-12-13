@@ -41,6 +41,7 @@ async function pollUpdater() {
 async function main() {
     const teams = await getTeams(division);
     const fieldInfo = await getFieldInfo(fieldset);
+    const inspection = await getInspectionStatus();
     
     talos.connectCb = function () {
         console.log("Sending teams");
@@ -67,6 +68,11 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['fields'],
                 payload: fieldInfo
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['inspection'],
+                payload: inspection
             }
         ]
     }
