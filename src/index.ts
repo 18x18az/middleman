@@ -7,6 +7,7 @@ import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
 import { getInspectionStatus } from "./inspection";
+import { parseScheduleBlocks } from "./schedule";
 
 config()
 
@@ -42,6 +43,8 @@ async function main() {
     const teams = await getTeams(division);
     const fieldInfo = await getFieldInfo(fieldset);
     const inspection = await getInspectionStatus();
+    const schedule = await parseScheduleBlocks();
+    console.log(schedule);
     
     talos.connectCb = function () {
         console.log("Sending teams");
