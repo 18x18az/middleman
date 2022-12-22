@@ -1,5 +1,5 @@
 //import { getTable } from "./request";
-import { Teams, Team, TeamId } from "@18x18az/rosetta"
+import { ITeams, ITeam, TeamId } from "@18x18az/rosetta"
 import { tm } from "./request";
 
 export async function getSkillsRankings() {
@@ -11,4 +11,8 @@ export async function getSkillsRankings() {
     });
 
     // TODO: return something useful
+}
+
+export async function getSkillsInformation() {
+    // TODO
 }

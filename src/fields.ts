@@ -1,10 +1,10 @@
-import { FieldControl, IFieldState, IFieldInfo } from "@18x18az/rosetta"
+import { FIELD_CONTROL, IFieldState, IFieldInfo } from "@18x18az/rosetta"
 import { talos } from "./index"
 import { tm } from "./request";
 
 let currentFieldState: IFieldState = {
     field: "0",
-    control: FieldControl.DISABLED,
+    control: FIELD_CONTROL.DISABLED,
     timeRemaining: 0,
     match: "None"
 }
@@ -46,25 +46,25 @@ export async function doSocketStuff(fieldset: string) {
         if (type === "timeUpdated") {
             const period = info.period_name;
             if (period === "Autonomous") {
-                currentFieldState.control = FieldControl.AUTONOMOUS
+                currentFieldState.control = FIELD_CONTROL.AUTONOMOUS
             } else if (period === "Driver Control") {
-                currentFieldState.control = FieldControl.DRIVER
+                currentFieldState.control = FIELD_CONTROL.DRIVER
             } else if (info.state === "TIMEOUT") {
-                currentFieldState.control = FieldControl.TIMEOUT
+                currentFieldState.control = FIELD_CONTROL.TIMEOUT
             } else if (period === "") {
-                currentFieldState.control = FieldControl.DISABLED
+                currentFieldState.control = FIELD_CONTROL.DISABLED
             }
 
             currentFieldState.timeRemaining = info.remaining;
         } else if (type === "matchPaused") {
             currentFieldState.timeRemaining = 0;
-            currentFieldState.control = FieldControl.PAUSED;
+            currentFieldState.control = FIELD_CONTROL.PAUSED;
         } else if (type === "matchStopped") {
             currentFieldState.timeRemaining = 0;
-            currentFieldState.control = FieldControl.DISABLED;
+            currentFieldState.control = FIELD_CONTROL.DISABLED;
         } else if (type === "matchAborted") {
             currentFieldState.timeRemaining = 0;
-            currentFieldState.control = FieldControl.DISABLED;
+            currentFieldState.control = FIELD_CONTROL.DISABLED;
         } else if (type === "timerReset") {
             currentFieldState.field = info.fieldId;
         } else if (type === "fieldMatchAssigned") {

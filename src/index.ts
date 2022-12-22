@@ -7,6 +7,7 @@ import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
 import { getSkillsRankings } from "./skills";
+import { getInspectionStatus } from "./inspection";
 
 config()
 
@@ -27,6 +28,12 @@ async function pollUpdater() {
     if (matchList) {
         console.log("matches updated");
         talos.post(['matches'], matchList);
+    }
+    
+    const inspection = await getInspectionStatus();
+    if (inspection) {
+        console.log("inspection updated");
+        talos.post(['inspection'], inspection);
     }
 
     return
@@ -51,8 +58,7 @@ async function viaUpdater() {
 async function main() {
     const teams = await getTeams(division);
     const fieldInfo = await getFieldInfo(fieldset);
-    //const brr = await getAwards(hostname, division); // test
-    //console.log(brr);
+    const inspection = await getInspectionStatus();
     
     talos.connectCb = function () {
         console.log("Sending teams");
@@ -79,6 +85,11 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['fields'],
                 payload: fieldInfo
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['inspection'],
+                payload: inspection
             }
         ]
     }
@@ -102,6 +113,8 @@ async function main() {
     }
 
     talos.post(["teams"], teams);
+
+    //getInspectionStatus();
 
     doSocketStuff(fieldset);
 
