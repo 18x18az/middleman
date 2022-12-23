@@ -17,22 +17,26 @@ const fieldset = process.env.FIELDSET as string;
 export const talos = new Websocket(talos_url);
 
 async function pollUpdater() {
-    const newScore = await getNewScores(division);
-    if (newScore) {
-        console.log(JSON.stringify(newScore));
-        talos.post(['score'], newScore);
-    }
+    try {
+        const newScore = await getNewScores(division);
+        if (newScore) {
+            console.log(JSON.stringify(newScore));
+            talos.post(['score'], newScore);
+        }
 
-    const matchList = await getNewMatches(division);
-    if (matchList) {
-        console.log("matches updated");
-        talos.post(['matches'], matchList);
-    }
-    
-    const inspection = await getInspectionStatus();
-    if (inspection) {
-        console.log("inspection updated");
-        talos.post(['inspection'], inspection);
+        const matchList = await getNewMatches(division);
+        if (matchList) {
+            console.log("matches updated");
+            talos.post(['matches'], matchList);
+        }
+
+        const inspection = await getInspectionStatus();
+        if (inspection) {
+            console.log("inspection updated");
+            talos.post(['inspection'], inspection);
+        }
+    } catch (e) {
+        console.log(e);
     }
 
     return
@@ -42,7 +46,7 @@ async function main() {
     const teams = await getTeams(division);
     const fieldInfo = await getFieldInfo(fieldset);
     const inspection = await getInspectionStatus();
-    
+
     talos.connectCb = function () {
         console.log("Sending teams");
         const matches = getStaleMatches();
@@ -85,7 +89,7 @@ async function main() {
             getRankings(division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
-        } else if(route === "awards") {
+        } else if (route === "awards") {
             console.log("updated awards requested");
             getAwards(division).then(awards => {
                 talos.post(["awards"], awards);
