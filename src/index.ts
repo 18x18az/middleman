@@ -80,6 +80,11 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['inspection'],
                 payload: inspection
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['schedule'],
+                payload: schedule
             }
         ]
     }
@@ -96,6 +101,11 @@ async function main() {
             console.log("updated awards requested");
             getAwards(division).then(awards => {
                 talos.post(["awards"], awards);
+            });
+        } else if (route === "schedule") {
+            console.log("schedule requested");
+            parseScheduleBlocks().then(schedule => {
+                talos.post(["schedule"], schedule);
             });
         }
 
