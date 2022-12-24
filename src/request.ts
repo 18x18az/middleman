@@ -71,7 +71,7 @@ class TournamentManager {
 
     async getTable(path: string): Promise<Array<any>> {
         const dom = await this.getDom(path);
-        const table = Array.from(dom.window.document.querySelector('tbody').rows);
+        const table = Array.from((dom.window.document.querySelector('tbody') as HTMLTableSectionElement).rows);
         return table;
     }
 
