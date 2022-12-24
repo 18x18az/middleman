@@ -12,6 +12,11 @@ const results: MatchResults = {};
 
 let lastLength = 0;
 const matchList: IMatchList = {};
+let expectChange = false;
+
+export function alertChange() {
+    expectChange = true;
+}
 
 interface MatchResults {
     [key: string]: HashedResult
@@ -82,18 +87,19 @@ export async function getNewMatches(division: string): Promise<IMatchList | null
             }
         });
 
-    if (raw.length !== lastLength) {
+    if (raw.length !== lastLength || expectChange) {
+        expectChange = false;
         lastLength = raw.length;
         raw.forEach((row: any) => {
             const columns = Array.from(row.cells).map((cell: any) => (cell.textContent));
             const matchName = columns[0];
             const red: IAllianceTeams = {
-                team1:  getTeamIdFromNumber(columns[1]),
-                team2:  getTeamIdFromNumber(columns[2])
+                team1: getTeamIdFromNumber(columns[1]),
+                team2: getTeamIdFromNumber(columns[2])
             };
             const blue: IAllianceTeams = {
-                team1:  getTeamIdFromNumber(columns[3]),
-                team2:  getTeamIdFromNumber(columns[4])
+                team1: getTeamIdFromNumber(columns[3]),
+                team2: getTeamIdFromNumber(columns[4])
             };
 
             let matchNumber, matchType;

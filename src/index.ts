@@ -1,8 +1,8 @@
 import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
-import { getNewMatches, getNewScores, getStaleMatches } from "./matches";
+import { alertChange, getNewMatches, getNewScores, getStaleMatches } from "./matches";
 import { getRankings } from "./rankings";
-import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo } from "./fields";
+import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
@@ -36,7 +36,8 @@ async function pollUpdater() {
             talos.post(['inspection'], inspection);
         }
     } catch (e) {
-        console.log(e);
+        alertChange();
+        resetWs();
     }
 
     return
@@ -44,7 +45,6 @@ async function pollUpdater() {
 
 async function main() {
     const teams = await getTeams(division);
-    const fieldInfo = await getFieldInfo(fieldset);
     const inspection = await getInspectionStatus();
 
     talos.connectCb = function () {
@@ -98,10 +98,6 @@ async function main() {
 
         return null;
     }
-
-    talos.post(["teams"], teams);
-
-    //getInspectionStatus();
 
     doSocketStuff(fieldset);
 
