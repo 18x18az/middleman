@@ -93,7 +93,6 @@ export async function doSocketStuff(fieldset: string) {
  * @param type can be either NextMatch, PrevMatch, Driver, Programming
  */
 async function queueMatch(fieldset: string, type: CONTROL_QUEUE) {
-    //ws = await tm.getFieldControlSocket(fieldset);
     let validActions: string[] = ["NextMatch", "PrevMatch", "Driver", "Programming"];
 
     if (validActions.includes(type)) {
@@ -104,6 +103,23 @@ async function queueMatch(fieldset: string, type: CONTROL_QUEUE) {
     }
     else {
         console.log(`fieldcontrol: queuing ${type} not supported`);
+    }
+}
+
+async function controlMatch(fieldset: string, type: CONTROL_MATCH, fieldID: string) {
+    if (type === "start") {
+        console.log("starting match!");
+        console.log({
+            "action": type,
+            "fieldId": fieldID
+        })
+        // TODO: when something (like middleman) restarts,
+        // fieldID = 0. However fieldIDs start at 1.
+        // do something about it
+        ws.send(JSON.stringify({
+            "action": type,
+            "fieldId": fieldID
+        }));
     }
 }
 
@@ -120,22 +136,22 @@ export enum CONTROL_QUEUE {
 }
 
 export enum CONTROL_MATCH {
-
+    START = "start"
 }
 
 export interface IFieldControl {
     type: CONTROL_TYPE
     action: CONTROL_QUEUE | CONTROL_MATCH
+    fieldID: string
 }
 
 export async function postFieldControlHandler(fieldset: string, path: IPath, payload: IFieldControl) {
     console.log("field control post handler");
     console.log(payload);
-    console.log(path);
     if (payload.type === CONTROL_TYPE.QUEUE) {
         queueMatch(fieldset, payload.action as CONTROL_QUEUE);
     }
     else if (payload.type === CONTROL_TYPE.MATCH) {
-
+        controlMatch(fieldset, payload.action as CONTROL_MATCH, payload.fieldID);
     }
 }
