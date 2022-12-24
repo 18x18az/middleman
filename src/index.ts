@@ -46,12 +46,12 @@ async function pollUpdater() {
 async function main() {
     const teams = await getTeams(division);
     const inspection = await getInspectionStatus();
+    const fieldInfo = await getFieldInfo(fieldset);
 
     talos.connectCb = function () {
         console.log("Sending teams");
         const matches = getStaleMatches();
         const fieldState = getStaleFieldState();
-        const fieldInfo = getStaleFieldInfo();
         return [
             {
                 type: MESSAGE_TYPE.POST,
