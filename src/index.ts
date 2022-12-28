@@ -7,6 +7,7 @@ import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
 import { getInspectionStatus } from "./inspection";
+import { parseScheduleBlocks } from "./schedule";
 
 config()
 
@@ -46,7 +47,9 @@ async function pollUpdater() {
 async function main() {
     const teams = await getTeams(division);
     const inspection = await getInspectionStatus();
-
+    const schedule = await parseScheduleBlocks();
+    console.log(schedule);
+    
     talos.connectCb = function () {
         console.log("Sending teams");
         const matches = getStaleMatches();
@@ -77,6 +80,11 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['inspection'],
                 payload: inspection
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['schedule'],
+                payload: schedule
             }
         ]
     }
@@ -93,6 +101,11 @@ async function main() {
             console.log("updated awards requested");
             getAwards(division).then(awards => {
                 talos.post(["awards"], awards);
+            });
+        } else if (route === "schedule") {
+            console.log("schedule requested");
+            parseScheduleBlocks().then(schedule => {
+                talos.post(["schedule"], schedule);
             });
         }
 
