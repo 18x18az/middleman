@@ -1,8 +1,8 @@
 import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
-import { getNewMatches, getNewScores, getStaleMatches } from "./matches";
+import { alertChange, getNewMatches, getNewScores, getStaleMatches } from "./matches";
 import { getRankings } from "./rankings";
-import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo } from "./fields";
+import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
@@ -18,22 +18,27 @@ const fieldset = process.env.FIELDSET as string;
 export const talos = new Websocket(talos_url);
 
 async function pollUpdater() {
-    const newScore = await getNewScores(division);
-    if (newScore) {
-        console.log(JSON.stringify(newScore));
-        talos.post(['score'], newScore);
-    }
+    try {
+        const newScore = await getNewScores(division);
+        if (newScore) {
+            console.log(JSON.stringify(newScore));
+            talos.post(['score'], newScore);
+        }
 
-    const matchList = await getNewMatches(division);
-    if (matchList) {
-        console.log("matches updated");
-        talos.post(['matches'], matchList);
-    }
-    
-    const inspection = await getInspectionStatus();
-    if (inspection) {
-        console.log("inspection updated");
-        talos.post(['inspection'], inspection);
+        const matchList = await getNewMatches(division);
+        if (matchList) {
+            console.log("matches updated");
+            talos.post(['matches'], matchList);
+        }
+
+        const inspection = await getInspectionStatus();
+        if (inspection) {
+            console.log("inspection updated");
+            talos.post(['inspection'], inspection);
+        }
+    } catch (e) {
+        alertChange();
+        resetWs();
     }
 
     return
@@ -57,9 +62,8 @@ async function viaUpdater() {
 
 async function main() {
     const teams = await getTeams(division);
-    const fieldInfo = await getFieldInfo(fieldset);
     const inspection = await getInspectionStatus();
-    
+
     talos.connectCb = function () {
         console.log("Sending teams");
         const matches = getStaleMatches();
@@ -102,7 +106,7 @@ async function main() {
             getRankings(division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
-        } else if(route === "awards") {
+        } else if (route === "awards") {
             console.log("updated awards requested");
             getAwards(division).then(awards => {
                 talos.post(["awards"], awards);
@@ -111,10 +115,6 @@ async function main() {
 
         return null;
     }
-
-    talos.post(["teams"], teams);
-
-    //getInspectionStatus();
 
     doSocketStuff(fieldset);
 

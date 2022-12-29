@@ -1,4 +1,5 @@
 import { FIELD_CONTROL, IFieldState, IFieldInfo } from "@18x18az/rosetta"
+import { WebSocket } from "ws";
 import { talos } from "./index"
 import { tm } from "./request";
 
@@ -32,8 +33,14 @@ export function getStaleFieldInfo(): Array<IFieldInfo>{
     return currentFieldInfo;
 }
 
+let ws: WebSocket;
+
+export function resetWs(){
+    ws.close();
+}
+
 export async function doSocketStuff(fieldset: string) {
-    const ws = await tm.getFieldControlSocket(fieldset);
+    ws = await tm.getFieldControlSocket(fieldset);
 
     ws.on('open', function open() {
         console.log('connected');
@@ -74,7 +81,8 @@ export async function doSocketStuff(fieldset: string) {
         talos.post(["field", currentFieldState.field], currentFieldState);
     });
 
-    ws.on('close', function close() {
-        console.log('disconnected');
+    ws.on('close', async function close() {
+        console.log('Attempting to reconnect');
+        await doSocketStuff(fieldset);
     });
 }
