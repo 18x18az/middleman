@@ -1,7 +1,7 @@
 import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { alertChange, getNewMatches, getNewScores, getStaleMatches } from "./matches";
-import { getRankings } from "./rankings";
+import { getRankings, getRankingsData } from "./rankings";
 import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
@@ -37,6 +37,18 @@ async function pollUpdater() {
             console.log("inspection updated");
             talos.post(['inspection'], inspection);
         }
+
+        const rankings = await getRankingsData(division);
+        if (rankings) {
+            console.log("rankings updated");
+            talos.post(['rankings'], rankings);
+        }
+
+        const skills = await getSkillsRankings();
+        if (skills) {
+            console.log("skills updated");
+            talos.post(['skills'], skills);
+        }
     } catch (e) {
         alertChange();
         resetWs();
@@ -45,26 +57,12 @@ async function pollUpdater() {
     return
 }
 
-// send updates to scores.18x18az.org periodically
-async function viaUpdater() {
-    getSkillsRankings();
-    // if nothing has changed, don't send scores.18x18 an update!
-    // need to check:
-    // - schedule changes
-    // - match results -> implies rankings needs to be updated
-    // - existence of elim matches
-    // - skills rankings
-
-    // we also need to get general event information.
-    // is it possible to get event information from the TM webserver?
-    // - such as event name, location, etc.
-    // - perhaps scores.18x18az will need to poll robotevents maybe once a week?
-}
-
 async function main() {
     const teams = await getTeams(division);
     const inspection = await getInspectionStatus();
     const schedule = await parseScheduleBlocks();
+    const rankings = await getRankingsData(division);
+    const skills = await getSkillsRankings();
     console.log(schedule);
     
     talos.connectCb = function () {
@@ -102,6 +100,16 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['schedule'],
                 payload: schedule
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['rankings'],
+                payload: rankings
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['skills'],
+                payload: skills
             }
         ]
     }
@@ -114,6 +122,9 @@ async function main() {
             getRankings(division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
+            getRankingsData(division).then((rankings) => {
+                talos.post(["rankings"], rankings);
+            })
         } else if (route === "awards") {
             console.log("updated awards requested");
             getAwards(division).then(awards => {
@@ -132,7 +143,6 @@ async function main() {
     doSocketStuff(fieldset);
 
     setInterval(pollUpdater, 500);
-    setInterval(viaUpdater, 3000); // TODO: make this longer, like 90-120 seconds (90000-120000)
 }
 
 main();

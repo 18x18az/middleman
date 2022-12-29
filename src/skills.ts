@@ -1,18 +1,46 @@
-//import { getTable } from "./request";
+import { sha1 } from "object-hash";
 import { ITeams, ITeam, TeamId } from "@18x18az/rosetta"
 import { tm } from "./request";
+import { getTeamIdFromNumber } from "./teams";
 
-export async function getSkillsRankings() {
+export interface ISkillsRankingData {
+    rank: number,
+    team: TeamId,
+    total: number,
+    highProgramming: number,
+    numProgramming: number,
+    highDriver: number,
+    numDriver: number
+}
+export type ISkillsRankings = Array<ISkillsRankingData>;
+
+let prevHash: string = "";
+
+export async function getSkillsRankings(): Promise<ISkillsRankings | null> {
 
     const raw = await tm.getTable(`skills/rankings`);
-    raw.forEach((row: any) => {
+    const skills: ISkillsRankings = raw.map((row: any) => {
         const columns = Array.from(row.cells).map((cell: any) => (cell.textContent));
-        console.log("rank: " + columns[0] + "\tteam#: " + columns[1] + "\ttotal: " + columns[3]);
+        const rank = columns[0];
+        const team = getTeamIdFromNumber(columns[1]);
+        const total = columns[3];
+        const highProgramming = columns[4];
+        const numProgramming = columns[5];
+        const highDriver = columns[6];
+        const numDriver = columns[7];
+        return {
+            rank, team, total,
+            highProgramming, numProgramming,
+            highDriver, numDriver
+        };
     });
 
-    // TODO: return something useful
-}
+    const hash = sha1(skills);
+    if (hash !== prevHash) {
+        prevHash = hash;
+        return skills;
+    }
+    return null;
 
-export async function getSkillsInformation() {
-    // TODO
+    // TODO: return something useful
 }
