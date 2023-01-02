@@ -1,33 +1,33 @@
 {
-  "name": "middleman",
-  "version": "1.0.0",
-  "description": "訳者",
-  "main": "src/index.ts",
-  "repository": "https://github.com/18x18az/middleman.git",
-  "license": "MIT",
-  "dependencies": {
-    "@18x18az/ouija": "^1.0.4",
-    "@18x18az/rosetta": "^3.0.0",
-    "@types/jsdom": "^16.2.13",
-    "@types/node": "^16.11.11",
-    "@types/object-hash": "^2.2.1",
-    "@types/ws": "^8.2.1",
-    "axios": "^0.24.0",
-    "axios-cookiejar-support": "^2.0.3",
-    "dotenv": "^10.0.0",
-    "jsdom": "^19.0.0",
-    "object-hash": "^2.2.0",
-    "sqlite3": "^5.1.4",
-    "tough-cookie": "^4.0.0",
-    "typescript": "^4.5.2",
-    "ws": "^8.3.0"
-  },
-  "devDependencies": {
-    "ts-node": "^10.4.0"
-  },
-  "scripts": {
-    "build": "tsc",
-    "start": "node ./bin/index.js",
-    "dev": "ts-node ./src/index.ts"
-  }
+    "name": "middleman",
+    "version": "1.0.0",
+    "description": "訳者",
+    "main": "src/index.ts",
+    "repository": "https://github.com/18x18az/middleman.git",
+    "license": "MIT",
+    "dependencies": {
+        "@18x18az/ouija": "^1.0.4",
+        "@18x18az/rosetta": "^3.3.1",
+        "@types/jsdom": "^16.2.13",
+        "@types/node": "^16.11.11",
+        "@types/object-hash": "^2.2.1",
+        "@types/ws": "^8.2.1",
+        "axios": "^0.24.0",
+        "axios-cookiejar-support": "^2.0.3",
+        "dotenv": "^10.0.0",
+        "jsdom": "^19.0.0",
+        "object-hash": "^2.2.0",
+        "sqlite3": "^5.1.4",
+        "tough-cookie": "^4.0.0",
+        "typescript": "^4.5.2",
+        "ws": "^8.3.0"
+    },
+    "devDependencies": {
+        "ts-node": "^10.4.0"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "node ./bin/index.js",
+        "dev": "ts-node ./src/index.ts"
+    }
 }
