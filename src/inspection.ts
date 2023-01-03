@@ -1,14 +1,8 @@
 import { sha1 } from "object-hash";
 import { tm } from "./request";
 import { JSDOM } from "jsdom";
-import { TeamId } from "@18x18az/rosetta";
+import { IInspectionStatus, TeamId } from "@18x18az/rosetta";
 import { getTeamIdFromNumber } from "./teams";
-
-// TODO: move to rosetta onces TALOS-19 is done + merged
-interface IInspectionStatus {
-    uninspected: Array<TeamId>
-    inspected: Array<TeamId>
-}
 
 let prevHash: string = "";
 
@@ -41,19 +35,32 @@ export async function getInspectionStatus(): Promise<IInspectionStatus | null> {
     line = line.substring(13, line.length-2);
     const teams = JSON.parse(line);
 
-    let uninspected: Array<TeamId> = [];
-    let inspected: Array<TeamId> = [];
+    let notStarted: Array<TeamId> = [];
+    let partial: Array<TeamId> = [];
+    let inspected: Array<TeamId> = []
     teams.forEach((team: any) => {
-        if (team["status"] == "NOT_STARTED" || team["status"] == "PARTIAL") {
-            uninspected.push(getTeamIdFromNumber(team["number"]) as TeamId);
-        }
-        else {
-            inspected.push(getTeamIdFromNumber(team["number"]) as TeamId);
+        const status = team["status"];
+        const id = getTeamIdFromNumber(team["number"]) as TeamId;
+
+        switch(status){
+            case "NOT_STARTED": {
+                notStarted.push(id);
+                break;
+            }
+            case "PARTIAL": {
+                partial.push(id);
+            }
+            default: {
+                inspected.push(id);
+            }
         }
     });
     let output: IInspectionStatus = {
-        uninspected, 
-        inspected
+        notStarted,
+        partial,
+        inspected,
+        noShow: [],
+        notCheckedIn: []
     }
 
     const hash = sha1(output);

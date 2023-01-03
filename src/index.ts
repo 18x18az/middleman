@@ -1,12 +1,14 @@
 import { Websocket, IMessageCb } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { alertChange, getNewMatches, getNewScores, getStaleMatches } from "./matches";
-import { getRankings } from "./rankings";
 import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs, postFieldControlHandler } from "./fields";
+import { getRankings, getRankingsData } from "./rankings";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
+import { getSkillsRankings } from "./skills";
 import { getInspectionStatus } from "./inspection";
+import { parseScheduleBlocks } from "./schedule";
 
 config()
 
@@ -35,6 +37,18 @@ async function pollUpdater() {
             console.log("inspection updated");
             talos.post(['inspection'], inspection);
         }
+
+        const rankings = await getRankingsData(division);
+        if (rankings) {
+            console.log("rankings updated");
+            talos.post(['rankings'], rankings);
+        }
+
+        const skills = await getSkillsRankings();
+        if (skills) {
+            console.log("skills updated");
+            talos.post(['skills'], skills);
+        }
     } catch (e) {
         alertChange();
         resetWs();
@@ -47,7 +61,11 @@ async function main() {
     const teams = await getTeams(division);
     const inspection = await getInspectionStatus();
     const fieldInfo = await getFieldInfo(fieldset);
-
+    const schedule = await parseScheduleBlocks();
+    const rankings = await getRankingsData(division);
+    const skills = await getSkillsRankings();
+    console.log(schedule);
+    
     talos.connectCb = function () {
         console.log("Sending teams");
         const matches = getStaleMatches();
@@ -77,6 +95,21 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['inspection'],
                 payload: inspection
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['schedule'],
+                payload: schedule
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['rankings'],
+                payload: rankings
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['skills'],
+                payload: skills
             }
         ]
     }
@@ -89,10 +122,18 @@ async function main() {
             getRankings(division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
+            getRankingsData(division).then((rankings) => {
+                talos.post(["rankings"], rankings);
+            })
         } else if (route === "awards") {
             console.log("updated awards requested");
             getAwards(division).then(awards => {
                 talos.post(["awards"], awards);
+            });
+        } else if (route === "schedule") {
+            console.log("schedule requested");
+            parseScheduleBlocks().then(schedule => {
+                talos.post(["schedule"], schedule);
             });
         }
 
