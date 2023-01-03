@@ -1,11 +1,12 @@
 import { Websocket } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { alertChange, getNewMatches, getNewScores, getStaleMatches } from "./matches";
-import { getRankings } from "./rankings";
+import { getRankings, getRankingsData } from "./rankings";
 import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
+import { getSkillsRankings } from "./skills";
 import { getInspectionStatus } from "./inspection";
 import { parseScheduleBlocks } from "./schedule";
 
@@ -36,6 +37,18 @@ async function pollUpdater() {
             console.log("inspection updated");
             talos.post(['inspection'], inspection);
         }
+
+        const rankings = await getRankingsData(division);
+        if (rankings) {
+            console.log("rankings updated");
+            talos.post(['rankings'], rankings);
+        }
+
+        const skills = await getSkillsRankings();
+        if (skills) {
+            console.log("skills updated");
+            talos.post(['skills'], skills);
+        }
     } catch (e) {
         alertChange();
         resetWs();
@@ -48,6 +61,8 @@ async function main() {
     const teams = await getTeams(division);
     const inspection = await getInspectionStatus();
     const schedule = await parseScheduleBlocks();
+    const rankings = await getRankingsData(division);
+    const skills = await getSkillsRankings();
     console.log(schedule);
     
     talos.connectCb = function () {
@@ -85,6 +100,16 @@ async function main() {
                 type: MESSAGE_TYPE.POST,
                 path: ['schedule'],
                 payload: schedule
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['rankings'],
+                payload: rankings
+            },
+            {
+                type: MESSAGE_TYPE.POST,
+                path: ['skills'],
+                payload: skills
             }
         ]
     }
@@ -97,6 +122,9 @@ async function main() {
             getRankings(division).then((rankings) => {
                 talos.post(["allianceSelection"], rankings);
             });
+            getRankingsData(division).then((rankings) => {
+                talos.post(["rankings"], rankings);
+            })
         } else if (route === "awards") {
             console.log("updated awards requested");
             getAwards(division).then(awards => {
