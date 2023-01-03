@@ -1,4 +1,4 @@
-import { FIELD_CONTROL, IFieldState, IFieldInfo } from "@18x18az/rosetta"
+import { FIELD_CONTROL, IFieldState, IFieldInfo, IPath } from "@18x18az/rosetta"
 import { WebSocket } from "ws";
 import { talos } from "./index"
 import { tm } from "./request";
@@ -85,4 +85,73 @@ export async function doSocketStuff(fieldset: string) {
         console.log('Attempting to reconnect');
         await doSocketStuff(fieldset);
     });
+}
+
+/**
+ * 
+ * @param fieldset the fieldset to connect to
+ * @param type can be either NextMatch, PrevMatch, Driver, Programming
+ */
+async function queueMatch(fieldset: string, type: CONTROL_QUEUE) {
+    let validActions: string[] = ["NextMatch", "PrevMatch", "Driver", "Programming"];
+
+    if (validActions.includes(type)) {
+        ws.send(JSON.stringify({
+            "action": "queue" + type
+        }));
+        console.log(`fieldcontrol: queuing ${type}`);
+    }
+    else {
+        console.log(`fieldcontrol: queuing ${type} not supported`);
+    }
+}
+
+async function controlMatch(fieldset: string, type: CONTROL_MATCH, fieldID: string) {
+    if (type === "start") {
+        console.log("starting match!");
+        console.log({
+            "action": type,
+            "fieldId": fieldID
+        })
+        // TODO: when something (like middleman) restarts,
+        // fieldID = 0. However fieldIDs start at 1.
+        // do something about it
+        ws.send(JSON.stringify({
+            "action": type,
+            "fieldId": fieldID
+        }));
+    }
+}
+
+export enum CONTROL_TYPE {
+    QUEUE = "QUEUE",
+    MATCH = "MATCH"
+}
+
+export enum CONTROL_QUEUE {
+    COMP_NEXT = "NextMatch",
+    COMP_PREV = "PrevMatch",
+    SKILLS_DRIVER = "Driver",
+    SKILLS_PROGRAMMING = "Programming"
+}
+
+export enum CONTROL_MATCH {
+    START = "start"
+}
+
+export interface IFieldControl {
+    type: CONTROL_TYPE
+    action: CONTROL_QUEUE | CONTROL_MATCH
+    fieldID: string
+}
+
+export async function postFieldControlHandler(fieldset: string, path: IPath, payload: IFieldControl) {
+    console.log("field control post handler");
+    console.log(payload);
+    if (payload.type === CONTROL_TYPE.QUEUE) {
+        queueMatch(fieldset, payload.action as CONTROL_QUEUE);
+    }
+    else if (payload.type === CONTROL_TYPE.MATCH) {
+        controlMatch(fieldset, payload.action as CONTROL_MATCH, payload.fieldID);
+    }
 }

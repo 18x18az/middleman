@@ -1,8 +1,8 @@
-import { Websocket } from "@18x18az/ouija"
+import { Websocket, IMessageCb } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { alertChange, getNewMatches, getNewScores, getStaleMatches } from "./matches";
+import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs, postFieldControlHandler } from "./fields";
 import { getRankings, getRankingsData } from "./rankings";
-import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs } from "./fields";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
@@ -60,6 +60,7 @@ async function pollUpdater() {
 async function main() {
     const teams = await getTeams(division);
     const inspection = await getInspectionStatus();
+    const fieldInfo = await getFieldInfo(fieldset);
     const schedule = await parseScheduleBlocks();
     const rankings = await getRankingsData(division);
     const skills = await getSkillsRankings();
@@ -69,7 +70,6 @@ async function main() {
         console.log("Sending teams");
         const matches = getStaleMatches();
         const fieldState = getStaleFieldState();
-        const fieldInfo = getStaleFieldInfo();
         return [
             {
                 type: MESSAGE_TYPE.POST,
@@ -138,6 +138,16 @@ async function main() {
         }
 
         return null;
+    }
+
+    talos.postCb = function (path: IPath, payload: any) {
+        const route = path[0];
+
+        if (route === "fieldcontrol") {
+            postFieldControlHandler(fieldset, path, payload);
+        }
+
+        return null
     }
 
     doSocketStuff(fieldset);
