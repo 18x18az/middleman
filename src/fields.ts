@@ -1,4 +1,4 @@
-import { FIELD_CONTROL, IFieldState, IFieldInfo, IPath } from "@18x18az/rosetta"
+import { FIELD_CONTROL, IFieldState, IFieldInfo, IPath, FIELD_COMMAND } from "@18x18az/rosetta"
 import { WebSocket } from "ws";
 import { talos } from "./index"
 import { tm } from "./request";
@@ -106,19 +106,19 @@ async function queueMatch(fieldset: string, type: CONTROL_QUEUE) {
     }
 }
 
-async function controlMatch(fieldset: string, type: CONTROL_MATCH, fieldID: string) {
+async function controlMatch(fieldset: string, type: CONTROL_MATCH) {
     if (type === "start") {
         console.log("starting match!");
         console.log({
             "action": type,
-            "fieldId": fieldID
+            "fieldId": currentFieldState.field
         })
         // TODO: when something (like middleman) restarts,
         // fieldID = 0. However fieldIDs start at 1.
         // do something about it
         ws.send(JSON.stringify({
             "action": type,
-            "fieldId": fieldID
+            "fieldId": currentFieldState.field
         }));
     }
 }
@@ -145,13 +145,12 @@ export interface IFieldControl {
     fieldID: string
 }
 
-export async function postFieldControlHandler(fieldset: string, path: IPath, payload: IFieldControl) {
+export async function postFieldCommandHandler(fieldset: string, path: IPath, payload: FIELD_COMMAND) {
     console.log("field control post handler");
     console.log(payload);
-    if (payload.type === CONTROL_TYPE.QUEUE) {
-        queueMatch(fieldset, payload.action as CONTROL_QUEUE);
-    }
-    else if (payload.type === CONTROL_TYPE.MATCH) {
-        controlMatch(fieldset, payload.action as CONTROL_MATCH, payload.fieldID);
+    if(payload === FIELD_COMMAND.QUEUE_NEXT){
+        await queueMatch(fieldset, CONTROL_QUEUE.COMP_NEXT);
+    } else if(payload === FIELD_COMMAND.START_MATCH){
+        await controlMatch(fieldset, CONTROL_MATCH.START);
     }
 }

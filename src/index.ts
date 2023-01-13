@@ -1,7 +1,7 @@
 import { Websocket, IMessageCb } from "@18x18az/ouija"
 import { getTeams } from "./teams"
 import { alertChange, getNewMatches, getNewScores, getStaleMatches } from "./matches";
-import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs, postFieldControlHandler } from "./fields";
+import { doSocketStuff, getFieldInfo, getStaleFieldState, getStaleFieldInfo, resetWs, postFieldCommandHandler } from "./fields";
 import { getRankings, getRankingsData } from "./rankings";
 import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
@@ -143,8 +143,8 @@ async function main() {
     talos.postCb = function (path: IPath, payload: any) {
         const route = path[0];
 
-        if (route === "fieldcontrol") {
-            postFieldControlHandler(fieldset, path, payload);
+        if (route === "fieldCommand") {
+            postFieldCommandHandler(fieldset, path, payload);
         }
 
         return null
