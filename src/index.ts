@@ -7,8 +7,8 @@ import { config } from "dotenv"
 import { IPath, MESSAGE_TYPE } from "@18x18az/rosetta";
 import { getAwards } from "./awards";
 import { getSkillsRankings } from "./skills";
-import { getInspectionStatus } from "./inspection";
 import { parseScheduleBlocks } from "./schedule";
+import { getInspectionStatus } from "./inspectionOverall";
 
 config()
 

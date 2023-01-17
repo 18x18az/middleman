@@ -1,12 +1,9 @@
 import { sha1 } from "object-hash";
 import { tm } from "./request";
-import { JSDOM } from "jsdom";
 import { IInspectionStatus, TeamId } from "@18x18az/rosetta";
 import { getTeamIdFromNumber } from "./teams";
 
-let prevHash: string = "";
-
-export async function getInspectionStatus(): Promise<IInspectionStatus | null> {
+export async function getRawInspectionStatus(): Promise<IInspectionStatus> {
     const raw = await tm.getData("inspection")
         .catch(err => {
             if (err.includes("ECONNREFUSED")) {
@@ -15,7 +12,7 @@ export async function getInspectionStatus(): Promise<IInspectionStatus | null> {
                 throw err;
             }
         });
-    
+
     // to avoid getting spammed by ReferenceError: $ is not defined, we just parse
     // the raw HTML. list of teams' inspection status is the first line of var,
     // so search for that. then take the relevant substring of that line and 
@@ -27,12 +24,12 @@ export async function getInspectionStatus(): Promise<IInspectionStatus | null> {
         if (skip) {
             return;
         }
-        if (row.substring(0,3) === "var"){
+        if (row.substring(0, 3) === "var") {
             line = row;
             skip = true;
         }
     })
-    line = line.substring(13, line.length-2);
+    line = line.substring(13, line.length - 2);
     const teams = JSON.parse(line);
 
     let notStarted: Array<TeamId> = [];
@@ -42,7 +39,7 @@ export async function getInspectionStatus(): Promise<IInspectionStatus | null> {
         const status = team["status"];
         const id = getTeamIdFromNumber(team["number"]) as TeamId;
 
-        switch(status){
+        switch (status) {
             case "NOT_STARTED": {
                 notStarted.push(id);
                 break;
@@ -63,10 +60,5 @@ export async function getInspectionStatus(): Promise<IInspectionStatus | null> {
         notCheckedIn: []
     }
 
-    const hash = sha1(output);
-    if (hash !== prevHash) {
-        prevHash = hash;
-        return output;
-    }
-    return null;
+    return output;
 }
