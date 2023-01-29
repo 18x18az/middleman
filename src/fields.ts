@@ -43,7 +43,7 @@ export async function doSocketStuff(fieldset: string) {
     ws = await tm.getFieldControlSocket(fieldset);
 
     ws.on('open', function open() {
-        console.log('connected');
+        console.log('Started TM socket');
     });
 
     ws.on('message', function message(data) {
@@ -82,7 +82,7 @@ export async function doSocketStuff(fieldset: string) {
     });
 
     ws.on('close', async function close() {
-        console.log('Attempting to reconnect');
+        console.log('TM connection lost, attempting to reconnect');
         await doSocketStuff(fieldset);
     });
 }

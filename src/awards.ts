@@ -1,9 +1,9 @@
-import { IAllianceTeams, IAward, IAwards, TeamId } from "@18x18az/rosetta";
+import { IAlliance, IAward, IAwards, TeamId } from "@18x18az/rosetta";
 import { tm } from "./request";
 import { getTeamIdFromNumber } from "./teams";
 
 export async function getAwards(division: string): Promise<IAwards> {
-    const awardMap = new Map<string, TeamId | IAllianceTeams | null>();
+    const awardMap = new Map<string, TeamId | IAlliance | null>();
 
     const raw = await tm.getTable(`${division}/awards`);
     raw.map((row: any) => {
@@ -20,7 +20,7 @@ export async function getAwards(division: string): Promise<IAwards> {
         const existing = awardMap.get(awardName);
         if (existing) {
             if (existing && winner) {
-                const winningAlliance: IAllianceTeams = {
+                const winningAlliance: IAlliance = {
                     team1: existing as TeamId,
                     team2: winner
                 }

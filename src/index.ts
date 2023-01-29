@@ -22,7 +22,6 @@ async function pollUpdater() {
     try {
         const newScore = await getNewScores(division);
         if (newScore) {
-            console.log(JSON.stringify(newScore));
             talos.post(['score'], newScore);
         }
 
@@ -50,6 +49,7 @@ async function pollUpdater() {
             talos.post(['skills'], skills);
         }
     } catch (e) {
+        console.log(e);
         alertChange();
         resetWs();
     }
