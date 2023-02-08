@@ -152,7 +152,7 @@ async function main() {
 
     doSocketStuff(fieldset);
 
-    setInterval(pollUpdater, 500);
+    setInterval(pollUpdater, 2000);
 }
 
 main();
