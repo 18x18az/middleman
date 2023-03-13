@@ -20,7 +20,7 @@ class TmDatabase {
         this.databaseBus = new EventEmitter();
     }
 
-    async _getDb() {
+    async __getDb() {
         return open({
             filename: this.filename,
             driver: Database
@@ -53,11 +53,30 @@ class TmDatabase {
     }
 
     async _getSingle(table: string, selector: string, value: any) {
-        const db = await this._getDb();
+        const db = await this.__getDb();
 
         const result = await db.get(`SELECT * FROM '${table}' WHERE ${selector} = ?`, value);
         await db.close();
 
+        return result;
+    }
+
+    async _getDb() {
+        if (this.state !== DatabaseState.ESTABLISHED) {
+            await new Promise(resolve => this.databaseBus.once(DatabaseState.ESTABLISHED, resolve));
+        }
+
+        return this.__getDb();
+        
+    }
+
+    async getAll(table: string) {
+        const db = await this._getDb();
+
+        const result = await db.all(`SELECT * FROM ${table}`);
+
+        await db.close();
+        
         return result;
     }
 

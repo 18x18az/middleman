@@ -1,14 +1,11 @@
+import { getQualificationSchedule } from "./dao/qualSchedule";
 import { getTeamList } from "./dao/teams";
 import { setup } from "./state/access";
 
 async function main(){
     await setup();
-
-    while(true){
-        const teams = await getTeamList();
-        //console.log(teams);
-        await new Promise(r => setTimeout(r, 1000));
-    }
+    const teams = await getTeamList();
+    const blocks = await getQualificationSchedule();
 }
 
 main();
