@@ -33,9 +33,9 @@ class TmDatabase {
     }
 
     async loadDatabase(filename: string, eventName: string) {
-        console.log("Loading database");
+        console.log("Attempting to load TM database");
         if (!existsSync(filename)) {
-            console.log(`Database ${filename} does not exist`);
+            console.log(`TM Database ${filename} does not exist`);
             this._setDatabaseState(DatabaseState.WRONG_FILE);
             return;
         }
@@ -43,12 +43,12 @@ class TmDatabase {
         const dbEventName = (await this._getSingle('config', 'id', '101'))['value'];
 
         if (dbEventName !== eventName) {
-            console.log(`Event name mismatch for db ${filename}`);
+            console.log(`Event name mismatch for TM db ${filename}`);
             this._setDatabaseState(DatabaseState.WRONG_FILE);
             return;
         }
 
-        console.log("Database loaded");
+        console.log("TM Database loaded");
         this._setDatabaseState(DatabaseState.ESTABLISHED);
     }
 
