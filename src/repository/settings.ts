@@ -11,7 +11,9 @@ export async function getSetting(name: string, fallback: string): Promise<string
     const setting = settings[name];
     
     if(!setting){
-        return readSetting(name, fallback);
+        const val = await readSetting(name, fallback);
+        settings[name] = val;
+        return val;
     }
 
     return setting;
@@ -19,10 +21,20 @@ export async function getSetting(name: string, fallback: string): Promise<string
 
 export async function setSetting(name: string, val: string): Promise<void> {
     settings[name] = val;
-    await writeSetting(name, val);
+    await updateSetting(name, val);
 }
 
-async function writeSetting(name: string, val: string): Promise<void> {
+async function updateSetting(name: string, val: string): Promise<void> {
+    const db = await open({
+        filename: 'config.db',
+        driver: Database
+    });
+
+    await db.run(`UPDATE settings SET value = '${val}' WHERE name = '${name}'`);
+    await db.close();
+}
+
+async function createSetting(name: string, val: string): Promise<void> {
     const db = await open({
         filename: 'config.db',
         driver: Database
@@ -52,7 +64,7 @@ async function readSetting(name: string, fallback: string): Promise<string> {
     await db.close();
 
     console.log(`Populating default value for setting ${name}`)
-    setSetting(name, fallback);
+    createSetting(name, fallback);
 
     return fallback;
 }
