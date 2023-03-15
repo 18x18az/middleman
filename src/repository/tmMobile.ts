@@ -129,7 +129,7 @@ class TmMobile {
         });
 
         try {
-            const response = await this.client.get(url, { headers, httpsAgent });
+            await this.client.get(url, { headers, httpsAgent });
             return ConnectionStatus.GOOD;
         } catch (err: any) {
             const error = err?.response?.data?.error;
@@ -154,6 +154,10 @@ class TmMobile {
             const status = await this._checkConnection();
 
             if (status === ConnectionStatus.GOOD) {
+                console.log("Connection to TM Mobile established");
+                if (this.saveAuthorization) {
+                    this.saveAuthorization(this.deviceId, this.token);
+                }
                 this._setConnectionState(ConnectionState.CONNECTED);
                 return;
             }
@@ -164,7 +168,7 @@ class TmMobile {
                 }
             }
 
-            await new Promise(r => setTimeout(r, 3000));
+            await new Promise(r => setTimeout(r, 1000));
         }
     }
 
