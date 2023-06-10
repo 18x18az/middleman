@@ -29,24 +29,28 @@ class AdminServer {
     this.addConnectionCb(ConnectionState.TM_DOWN, this._onTmDisconnect.bind(this))
   }
 
-  addConnectionCb (state: ConnectionState, cb: () => void) {
-    this.connectionBus.on(state, cb)
+  addConnectionCb (state: ConnectionState, cb: () => Promise<void>): void {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.connectionBus.on(state, async () => {
+      await cb()
+    })
   }
 
-  async _onInvalidPassword () {
+  async _onInvalidPassword (): Promise<void> {
     console.log('Invalid password')
     this.password = null
   }
 
-  async _onTmDisconnect () {
+  async _onTmDisconnect (): Promise<void> {
     if (this.state !== ConnectionState.TM_DOWN) {
       console.log('TM Webserver has gone down')
       console.log('Attempting to reconnect')
     }
 
-    await new Promise(r => setTimeout(r, 1000))
+    // Wait a second between connection attempts to not spam the server
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
-    this._connect()
+    await this._connect()
   }
 
   async getData (path: string): Promise<any> {
@@ -56,7 +60,7 @@ class AdminServer {
       const { data } = await this.client.get(url)
       return data
     } catch {
-      this._setConnectionState(ConnectionState.TM_DOWN)
+      await this._setConnectionState(ConnectionState.TM_DOWN)
       return await this.getData(path)
     }
   }
@@ -81,19 +85,19 @@ class AdminServer {
     await new Promise(resolve => this.connectionBus.once(ConnectionState.CONNECTED, resolve))
   }
 
-  async _setConnectionState (state: ConnectionState) {
+  async _setConnectionState (state: ConnectionState): Promise<void> {
     this.connectionBus.emit(state)
     this.state = state
   }
 
-  async setPassword (password: string) {
+  async setPassword (password: string): Promise<void> {
     console.log('Attempting to connect to TM Webserver')
     if (this.state !== ConnectionState.INVALID_PASSWORD && this.state !== ConnectionState.IDLE) {
       console.log("WARN: Attempted to set the web server password when it shouldn't")
     }
 
     this.password = password
-    this._connect()
+    await this._connect()
   }
 
   async _connect (): Promise<void> {
@@ -103,7 +107,7 @@ class AdminServer {
     }
 
     if (this.password === null) {
-      this._setConnectionState(ConnectionState.INVALID_PASSWORD)
+      await this._setConnectionState(ConnectionState.INVALID_PASSWORD)
       return
     }
     try {
@@ -114,13 +118,13 @@ class AdminServer {
       const responseBody = String(response.data)
       if (responseBody.includes('Invalid username or password!')) {
         console.log('Authentication error on TM Webserver')
-        this._setConnectionState(ConnectionState.INVALID_PASSWORD)
+        await this._setConnectionState(ConnectionState.INVALID_PASSWORD)
       } else {
         console.log('Connection to TM Webserver established')
-        this._setConnectionState(ConnectionState.CONNECTED)
+        await this._setConnectionState(ConnectionState.CONNECTED)
       }
     } catch {
-      this._setConnectionState(ConnectionState.TM_DOWN)
+      await this._setConnectionState(ConnectionState.TM_DOWN)
     }
   }
 }

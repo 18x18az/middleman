@@ -1,7 +1,6 @@
 import EventEmitter from 'events'
 import { existsSync } from 'fs'
-import { open } from 'sqlite'
-import { Database } from 'sqlite3'
+import { open, Database } from 'sqlite'
 
 export enum DatabaseState {
   IDLE = 'IDLE',
@@ -20,23 +19,23 @@ class TmDatabase {
     this.databaseBus = new EventEmitter()
   }
 
-  async __getDb () {
+  async __getDb (): Promise<Database> {
     return await open({
       filename: this.filename,
       driver: Database
     })
   }
 
-  async _setDatabaseState (state: DatabaseState) {
+  async _setDatabaseState (state: DatabaseState): Promise<void> {
     this.databaseBus.emit(state)
     this.state = state
   }
 
-  async loadDatabase (filename: string, eventName: string) {
+  async loadDatabase (filename: string, eventName: string): Promise<void> {
     console.log('Attempting to load TM database')
     if (!existsSync(filename)) {
       console.log(`TM Database ${filename} does not exist`)
-      this._setDatabaseState(DatabaseState.WRONG_FILE)
+      await this._setDatabaseState(DatabaseState.WRONG_FILE)
       return
     }
     this.filename = filename
@@ -44,15 +43,15 @@ class TmDatabase {
 
     if (dbEventName !== eventName) {
       console.log(`Event name mismatch for TM db ${filename}`)
-      this._setDatabaseState(DatabaseState.WRONG_FILE)
+      await this._setDatabaseState(DatabaseState.WRONG_FILE)
       return
     }
 
     console.log('TM Database loaded')
-    this._setDatabaseState(DatabaseState.ESTABLISHED)
+    await this._setDatabaseState(DatabaseState.ESTABLISHED)
   }
 
-  async _getSingle (table: string, selector: string, value: any) {
+  async _getSingle (table: string, selector: string, value: any): Promise<any> {
     const db = await this.__getDb()
 
     const result = await db.get(`SELECT * FROM '${table}' WHERE ${selector} = ?`, value)
@@ -61,7 +60,7 @@ class TmDatabase {
     return result
   }
 
-  async _getDb () {
+  async _getDb (): Promise<Database> {
     if (this.state !== DatabaseState.ESTABLISHED) {
       await new Promise(resolve => this.databaseBus.once(DatabaseState.ESTABLISHED, resolve))
     }
@@ -69,7 +68,7 @@ class TmDatabase {
     return await this.__getDb()
   }
 
-  async getAll (table: string) {
+  async getAll (table: string): Promise<any> {
     const db = await this._getDb()
 
     const result = await db.all(`SELECT * FROM ${table}`)

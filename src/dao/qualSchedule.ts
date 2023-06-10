@@ -1,15 +1,15 @@
 import { tmDatabase } from '../repository/tmDatabase'
 import { adminServer } from '../repository/tmWebserver'
 
-interface IAlliance {
+interface Alliance {
   team1: number
   team2: number
 }
 
 interface ScheduledQualificationMatch {
-  number: number
-  redAlliance: number
-  blueAlliance: number
+  matchNumber: number
+  redAlliance: Alliance
+  blueAlliance: Alliance
 }
 
 interface RawScheduleBlock {
@@ -18,10 +18,16 @@ interface RawScheduleBlock {
   numMatches: number
 }
 
-async function getRawScheduleBlocks () {
+interface RawMatchBlock {
+  start: Date
+  end: Date
+  matches: ScheduledQualificationMatch[]
+}
+
+async function getRawScheduleBlocks (): Promise<RawScheduleBlock[]> {
   const rawBlocks = await tmDatabase.getAll('schedule_blocks')
 
-  return rawBlocks.map((rawBlock) => {
+  return rawBlocks.map((rawBlock: any) => {
     const startSeconds = rawBlock.start
     const endSeconds = rawBlock.stop
     const duration = endSeconds - startSeconds
@@ -35,25 +41,25 @@ async function getRawScheduleBlocks () {
   })
 }
 
-async function getRawQualMatches () {
+async function getRawQualMatches (): Promise<ScheduledQualificationMatch[]> {
   const rawMatchList = await adminServer.getTable('division1/matches')
 
-  return rawMatchList.map(row => {
+  return rawMatchList.flatMap(row => {
     const columns = Array.from(row.cells).map((cell: any) => (cell.textContent))
 
     const matchName = columns[0] as string
     if (!matchName.startsWith('Q')) {
-      return
+      return []
     }
 
-    const matchNumber = matchName.split('Q')[1]
+    const matchNumber = parseInt(matchName.split('Q')[1])
 
-    const redAlliance: IAlliance = {
+    const redAlliance: Alliance = {
       team1: columns[1],
       team2: columns[2]
     }
 
-    const blueAlliance: IAlliance = {
+    const blueAlliance: Alliance = {
       team1: columns[3],
       team2: columns[4]
     }
@@ -64,7 +70,7 @@ async function getRawQualMatches () {
   })
 }
 
-export async function getQualificationSchedule () {
+export async function getQualificationSchedule (): Promise<RawMatchBlock[]> {
   const rawMatches = await getRawQualMatches()
   const rawBlocks = await getRawScheduleBlocks()
 

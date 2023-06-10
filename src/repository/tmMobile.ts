@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosRequestHeaders } from 'axios'
 import { Agent } from 'https'
 import { wrapper } from 'axios-cookiejar-support'
 import EventEmitter from 'events'
@@ -30,7 +30,7 @@ class TmMobile {
   private readonly connectionBus: EventEmitter
   private authCode: number | null
   private deviceId: string
-  private saveAuthorization?: (name: string, token: string) => void
+  private saveAuthorization?: (name: string, token: string) => Promise<void>
 
   constructor () {
     this.connectionBus = new EventEmitter()
@@ -39,14 +39,16 @@ class TmMobile {
     this.authCode = null
     this.client = wrapper(axios.create())
     this.deviceId = ''
-    this.saveAuthorization
     this.authCodeInvalid = Date.now()
 
     this.addConnectionCb(ConnectionState.AWAITING_AUTH, this._establishConnection.bind(this))
   }
 
-  addConnectionCb (state: ConnectionState, cb: () => void) {
-    this.connectionBus.on(state, cb)
+  addConnectionCb (state: ConnectionState, cb: () => Promise<void>): void {
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    this.connectionBus.on(state, async () => {
+      await cb()
+    })
   }
 
   async _regenerateAuthCode (): Promise<void> {
@@ -62,6 +64,12 @@ class TmMobile {
     const response = await this.client.post(url, { deviceName: 'talos' }, { httpsAgent })
     this.token = response.data.deviceToken
     this.authCode = response.data.tempCode
+
+    if (this.authCode === null) {
+      await this._regenerateAuthCode()
+      return
+    }
+
     this.deviceId = response.data.deviceId
     const timeout = response.data.tempCodeTimeout
     this.authCodeInvalid = Date.now() + timeout * 1000
@@ -69,7 +77,7 @@ class TmMobile {
     console.log(`Got new TM mobile authorization code ${this.authCode}`)
   }
 
-  _makeHeaders (path: string, method: string, contentLength: number) {
+  _makeHeaders (path: string, method: string, contentLength: number): AxiosRequestHeaders {
     const date = new Date().toUTCString()
     const contentType = 'application/json'
     const acceptHeader = 'application/json'
@@ -107,18 +115,18 @@ class TmMobile {
     return null
   }
 
-  async loadConnection (name: string, token: string, saveCb: (name: string, token: string) => void) {
+  async loadConnection (name: string, token: string, saveCb: (name: string, token: string) => Promise<void>): Promise<void> {
     this.saveAuthorization = saveCb
     console.log('Attempting to connect to TM mobile')
 
-    if (!name) {
+    if (name === '') {
       await this._regenerateAuthCode()
     } else {
       this.deviceId = name
       this.token = token
     }
 
-    this._establishConnection()
+    await this._establishConnection()
   }
 
   async _checkConnection (): Promise<ConnectionStatus> {
@@ -155,19 +163,19 @@ class TmMobile {
       if (status === ConnectionStatus.GOOD) {
         console.log('Connection to TM Mobile established')
         if (this.saveAuthorization != null) {
-          this.saveAuthorization(this.deviceId, this.token)
+          void this.saveAuthorization(this.deviceId, this.token)
         }
-        this._setConnectionState(ConnectionState.CONNECTED)
+        await this._setConnectionState(ConnectionState.CONNECTED)
         return
       }
 
       if (status === ConnectionStatus.UNAUTHORIZED) {
         if (Date.now() > this.authCodeInvalid) {
-          this._regenerateAuthCode()
+          await this._regenerateAuthCode()
         }
       }
 
-      await new Promise(r => setTimeout(r, 1000))
+      await new Promise(resolve => setTimeout(resolve, 1000))
     }
   }
 
@@ -179,7 +187,7 @@ class TmMobile {
     await new Promise(resolve => this.connectionBus.once(ConnectionState.CONNECTED, resolve))
   }
 
-  async _setConnectionState (state: ConnectionState) {
+  async _setConnectionState (state: ConnectionState): Promise<void> {
     this.state = state
     this.connectionBus.emit(state)
   }

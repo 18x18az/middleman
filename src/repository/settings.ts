@@ -10,7 +10,7 @@ const settings: ISettings = {}
 export async function getSetting (name: string, fallback: string): Promise<string> {
   const setting = settings[name]
 
-  if (!setting) {
+  if (setting === undefined) {
     const val = await readSetting(name, fallback)
     settings[name] = val
     return val
@@ -52,8 +52,8 @@ async function readSetting (name: string, fallback: string): Promise<string> {
 
   try {
     const result = await db.get('SELECT value FROM settings WHERE name = ?', name)
-    if (result) {
-      db.close()
+    if (result !== undefined) {
+      await db.close()
       return result.value
     }
   } catch (error) {
@@ -64,7 +64,7 @@ async function readSetting (name: string, fallback: string): Promise<string> {
   await db.close()
 
   console.log(`Populating default value for setting ${name}`)
-  createSetting(name, fallback)
+  await createSetting(name, fallback)
 
   return fallback
 }
