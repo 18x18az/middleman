@@ -6,7 +6,6 @@
     "repository": "https://github.com/18x18az/middleman.git",
     "license": "MIT",
     "dependencies": {
-        "@18x18az/ouija": "^1.0.4",
         "@18x18az/rosetta": "^3.8.0",
         "@types/jsdom": "^16.2.13",
         "@types/node": "^16.11.11",
@@ -25,11 +24,13 @@
         "ws": "^8.3.0"
     },
     "devDependencies": {
-        "ts-node": "^10.4.0"
+        "ts-node": "^10.4.0",
+        "ts-standard": "^12.0.2"
     },
     "scripts": {
         "build": "tsc",
         "start": "node ./bin/index.js",
-        "dev": "ts-node ./src/index.ts"
+        "dev": "ts-node ./src/index.ts",
+        "lint": "ts-standard"
     }
 }
