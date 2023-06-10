@@ -5,7 +5,7 @@ import { setup } from './state/access'
 async function main (): Promise<void> {
   await setup()
   const teams = await getTeamList()
-  const blocks = await getQualificationSchedule()
+  const blocks = await getQualificationSchedule(1)
   console.log(teams)
   console.log(blocks)
 }

@@ -1,28 +1,6 @@
 import { tmDatabase } from '../repository/tmDatabase'
 import { adminServer } from '../repository/tmWebserver'
-
-interface Alliance {
-  team1: number
-  team2: number
-}
-
-interface ScheduledQualificationMatch {
-  matchNumber: number
-  redAlliance: Alliance
-  blueAlliance: Alliance
-}
-
-interface RawScheduleBlock {
-  start: Date
-  end: Date
-  numMatches: number
-}
-
-interface RawMatchBlock {
-  start: Date
-  end: Date
-  matches: ScheduledQualificationMatch[]
-}
+import { Alliance, ScheduledQualificationMatch, RawScheduleBlock, RawMatchBlock } from '@18x18az/rosetta'
 
 async function getRawScheduleBlocks (): Promise<RawScheduleBlock[]> {
   const rawBlocks = await tmDatabase.getAll('schedule_blocks')
@@ -41,8 +19,8 @@ async function getRawScheduleBlocks (): Promise<RawScheduleBlock[]> {
   })
 }
 
-async function getRawQualMatches (): Promise<ScheduledQualificationMatch[]> {
-  const rawMatchList = await adminServer.getTable('division1/matches')
+async function getRawQualMatches (division: number): Promise<ScheduledQualificationMatch[]> {
+  const rawMatchList = await adminServer.getTable(`division${division}/matches`)
 
   return rawMatchList.flatMap(row => {
     const columns = Array.from(row.cells).map((cell: any) => (cell.textContent))
@@ -70,8 +48,8 @@ async function getRawQualMatches (): Promise<ScheduledQualificationMatch[]> {
   })
 }
 
-export async function getQualificationSchedule (): Promise<RawMatchBlock[]> {
-  const rawMatches = await getRawQualMatches()
+export async function getQualificationSchedule (division: number): Promise<RawMatchBlock[]> {
+  const rawMatches = await getRawQualMatches(division)
   const rawBlocks = await getRawScheduleBlocks()
 
   return rawBlocks.map(block => {

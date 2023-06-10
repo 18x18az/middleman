@@ -1,11 +1,5 @@
+import { RawTeam } from '@18x18az/rosetta'
 import { adminServer } from '../repository/tmWebserver'
-
-export interface RawTeam {
-  number: string
-  name: string
-  location: string
-  school: string
-}
 
 export async function getTeamList (): Promise<RawTeam[]> {
   const raw = await adminServer.getTable('division1/teams')
