@@ -12,5 +12,5 @@ async function main (): Promise<void> {
 
 void main()
 
-setInterval(function () {
+setInterval(function () { // TODO maybe use this as a heartbeat to alert if Middleman goes down
 }, 1000 * 60 * 60)
