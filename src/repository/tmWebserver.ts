@@ -3,13 +3,8 @@ import axios, { AxiosInstance } from 'axios'
 import { wrapper } from 'axios-cookiejar-support'
 import EventEmitter from 'events'
 import { JSDOM } from 'jsdom'
-
-export enum ConnectionState {
-  IDLE = 'IDLE',
-  INVALID_PASSWORD = 'PASSWORD',
-  TM_DOWN = 'DOWN',
-  CONNECTED = 'CONNECTED'
-}
+import { sendConnectionState } from '../utils/talos'
+import { ConnectionState } from '@18x18az/rosetta'
 
 class AdminServer {
   private state: ConnectionState
@@ -25,8 +20,8 @@ class AdminServer {
     this.jar = new CookieJar()
     this.client = wrapper(axios.create({ jar: this.jar }))
 
-    this.addConnectionCb(ConnectionState.INVALID_PASSWORD, this._onInvalidPassword.bind(this))
-    this.addConnectionCb(ConnectionState.TM_DOWN, this._onTmDisconnect.bind(this))
+    this.addConnectionCb(ConnectionState.AUTH, this._onInvalidPassword.bind(this))
+    this.addConnectionCb(ConnectionState.DOWN, this._onTmDisconnect.bind(this))
   }
 
   addConnectionCb (state: ConnectionState, cb: () => Promise<void>): void {
@@ -42,7 +37,7 @@ class AdminServer {
   }
 
   async _onTmDisconnect (): Promise<void> {
-    if (this.state !== ConnectionState.TM_DOWN) {
+    if (this.state !== ConnectionState.DOWN) {
       console.log('TM Webserver has gone down')
       console.log('Attempting to reconnect')
     }
@@ -60,7 +55,7 @@ class AdminServer {
       const { data } = await this.client.get(url)
       return data
     } catch {
-      await this._setConnectionState(ConnectionState.TM_DOWN)
+      await this._setConnectionState(ConnectionState.DOWN)
       return await this.getData(path)
     }
   }
@@ -88,11 +83,12 @@ class AdminServer {
   async _setConnectionState (state: ConnectionState): Promise<void> {
     this.connectionBus.emit(state)
     this.state = state
+    sendConnectionState('web', state)
   }
 
   async setPassword (password: string): Promise<void> {
     console.log('Attempting to connect to TM Webserver')
-    if (this.state !== ConnectionState.INVALID_PASSWORD && this.state !== ConnectionState.IDLE) {
+    if (this.state !== ConnectionState.AUTH && this.state !== ConnectionState.IDLE) {
       console.log("WARN: Attempted to set the web server password when it shouldn't")
     }
 
@@ -107,7 +103,7 @@ class AdminServer {
     }
 
     if (this.password === null) {
-      await this._setConnectionState(ConnectionState.INVALID_PASSWORD)
+      await this._setConnectionState(ConnectionState.AUTH)
       return
     }
     try {
@@ -118,13 +114,13 @@ class AdminServer {
       const responseBody = String(response.data)
       if (responseBody.includes('Invalid username or password!')) {
         console.log('Authentication error on TM Webserver')
-        await this._setConnectionState(ConnectionState.INVALID_PASSWORD)
+        await this._setConnectionState(ConnectionState.AUTH)
       } else {
         console.log('Connection to TM Webserver established')
         await this._setConnectionState(ConnectionState.CONNECTED)
       }
     } catch {
-      await this._setConnectionState(ConnectionState.TM_DOWN)
+      await this._setConnectionState(ConnectionState.DOWN)
     }
   }
 }

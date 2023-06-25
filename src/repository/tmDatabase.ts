@@ -1,21 +1,17 @@
+import { ConnectionState } from '@18x18az/rosetta'
 import EventEmitter from 'events'
 import { existsSync } from 'fs'
 import { open, Database } from 'sqlite'
-
-export enum DatabaseState {
-  IDLE = 'IDLE',
-  WRONG_FILE = 'FILE',
-  ESTABLISHED = 'ESTABLISHED'
-}
+import { sendConnectionState } from '../utils/talos'
 
 class TmDatabase {
   filename: string
-  state: DatabaseState
+  state: ConnectionState
   databaseBus: EventEmitter
 
   constructor () {
     this.filename = ''
-    this.state = DatabaseState.IDLE
+    this.state = ConnectionState.IDLE
     this.databaseBus = new EventEmitter()
   }
 
@@ -26,16 +22,17 @@ class TmDatabase {
     })
   }
 
-  async _setDatabaseState (state: DatabaseState): Promise<void> {
+  async _setDatabaseState (state: ConnectionState): Promise<void> {
     this.databaseBus.emit(state)
     this.state = state
+    sendConnectionState('database', state)
   }
 
   async loadDatabase (filename: string, eventName: string): Promise<void> {
     console.log('Attempting to load TM database')
     if (!existsSync(filename)) {
       console.log(`TM Database ${filename} does not exist`)
-      await this._setDatabaseState(DatabaseState.WRONG_FILE)
+      await this._setDatabaseState(ConnectionState.DOWN)
       return
     }
     this.filename = filename
@@ -43,12 +40,12 @@ class TmDatabase {
 
     if (dbEventName !== eventName) {
       console.log(`Event name mismatch for TM db ${filename}`)
-      await this._setDatabaseState(DatabaseState.WRONG_FILE)
+      await this._setDatabaseState(ConnectionState.DOWN)
       return
     }
 
     console.log('TM Database loaded')
-    await this._setDatabaseState(DatabaseState.ESTABLISHED)
+    await this._setDatabaseState(ConnectionState.CONNECTED)
   }
 
   async _getSingle (table: string, selector: string, value: any): Promise<any> {
@@ -61,8 +58,8 @@ class TmDatabase {
   }
 
   async _getDb (): Promise<Database> {
-    if (this.state !== DatabaseState.ESTABLISHED) {
-      await new Promise(resolve => this.databaseBus.once(DatabaseState.ESTABLISHED, resolve))
+    if (this.state !== ConnectionState.CONNECTED) {
+      await new Promise(resolve => this.databaseBus.once(ConnectionState.CONNECTED, resolve))
     }
 
     return await this.__getDb()

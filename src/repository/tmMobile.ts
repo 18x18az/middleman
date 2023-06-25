@@ -3,17 +3,12 @@ import { Agent } from 'https'
 import { wrapper } from 'axios-cookiejar-support'
 import EventEmitter from 'events'
 import { createHmac } from 'crypto'
+import { sendConnectionState } from '../utils/talos'
+import { ConnectionState } from '@18x18az/rosetta'
 
 const BASE_PATH = 'https://localhost:5443'
 const API_ADDON = '/api/v2'
 const API_PATH = `${BASE_PATH}${API_ADDON}`
-
-export enum ConnectionState {
-  IDLE = 'IDLE',
-  AWAITING_AUTH = 'AUTH',
-  TM_DOWN = 'DOWN',
-  CONNECTED = 'CONNECTED'
-}
 
 export enum ConnectionStatus {
   OFFLINE = 'OFFLINE',
@@ -190,6 +185,7 @@ class TmMobile {
   async _setConnectionState (state: ConnectionState): Promise<void> {
     this.state = state
     this.connectionBus.emit(state)
+    sendConnectionState('mobile', state)
   }
 }
 
